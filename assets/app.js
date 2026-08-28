@@ -31,7 +31,7 @@ function stopEl(d,id,no){
   li.tabIndex=0;
   li.innerHTML=
     '<div class="stop-time">'+time+'</div>'+
-    '<div class="dex"><span class="ball">\u25D3</span>'+
+    '<div class="dex">'+
       '<img src="'+SPRITE(no)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'+
       '<span class="dex-no">'+String(no).padStart(3,'0')+'</span></div>'+
     '<div><div class="stop-name">'+name+'</div>'+

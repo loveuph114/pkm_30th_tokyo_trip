@@ -73,7 +73,6 @@ section{padding:2.2rem 1rem 0}
 .stop-time{font-family:var(--mono);font-size:.86rem;font-variant-numeric:tabular-nums;font-weight:600;padding-top:.15rem}
 .dex{position:relative;width:46px;height:46px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .dex img{width:46px;height:46px;image-rendering:pixelated;filter:brightness(0) saturate(0) opacity(.16);transition:filter .35s ease}
-.dex .ball{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;opacity:.18;color:var(--ink)}
 .dex-no{position:absolute;bottom:-2px;right:0;font-family:var(--dot);font-size:.55rem;color:var(--dim)}
 .stop-name{font-family:var(--round);font-size:.95rem;font-weight:700;line-height:1.4;margin-bottom:.1rem}
 .stop-note{font-size:.78rem;color:var(--mid);line-height:1.5}
@@ -83,7 +82,6 @@ section{padding:2.2rem 1rem 0}
 .dex-name{font-family:var(--mono);font-size:.6rem;color:var(--dim);letter-spacing:.06em;text-transform:capitalize}
 .stop.done{background:var(--caught);border-color:#D3E0FA}
 .stop.done .dex img{filter:none}
-.stop.done .dex .ball{display:none}
 .stop.done .stop-name{text-decoration:line-through;color:var(--dim);font-weight:500}
 .stop.done .stop-note{display:none}
 .stop.flag .stop-time{color:var(--red)}
@@ -149,8 +147,10 @@ section{padding:2.2rem 1rem 0}
   font-family:var(--round);font-size:.72rem;font-weight:700;color:var(--dim);
   display:flex;flex-direction:column;align-items:center;gap:.15rem;
 }
-.nav button .ic{font-size:1.05rem;line-height:1}
+.nav button .ic{font-size:1.05rem;line-height:1;height:22px;display:flex;align-items:center}
+.nav button .ic img{width:22px;height:22px;image-rendering:pixelated;filter:grayscale(1) opacity(.45);transition:filter .2s ease}
 .nav button.on{color:var(--indigo)}
+.nav button.on .ic img{filter:none}
 
 footer{padding:2.2rem 1rem 1rem;color:var(--dim);font-family:var(--mono);font-size:.63rem;letter-spacing:.06em;line-height:2.1}
 footer a{color:var(--indigo)}
