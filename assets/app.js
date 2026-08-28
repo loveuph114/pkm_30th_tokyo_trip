@@ -84,6 +84,14 @@ function render(){
     el.innerHTML='<div class="day-d">'+d[0]+'<br>'+d[1]+'</div><div><div class="day-t">'+d[2]+'</div><div class="day-b">'+d[3]+'</div></div>';
     dv.appendChild(el);
   });
+
+  const bk=document.getElementById('bookings');
+  BOOKINGS.forEach(b=>{
+    const el=document.createElement('div');
+    el.className='day';
+    el.innerHTML='<div class="day-d">'+b[0]+'</div><div><div class="day-t"><span class="bk-tag">'+b[1]+'</span>'+b[2]+'</div><div class="day-b">'+b[3]+'</div></div>';
+    bk.appendChild(el);
+  });
   updateBar();
 }
 

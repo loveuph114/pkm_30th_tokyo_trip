@@ -19,7 +19,7 @@ GitHub Pages 直接吃靜態檔，改一行就能推。請維持這個狀態。
 index.html          # 三個 .view 區塊 + 底部分頁
 assets/styles.css   # 全部樣式，CSS 變數在 :root
 assets/app.js       # 渲染、勾選狀態、倒數、分頁切換
-data/stops.js       # 所有資料（P1/P2/P3/PHRASES/RECON/DAYS）
+data/stops.js       # 所有資料（P1/P2/P3/PHRASES/RECON/DAYS/BOOKINGS）
 ```
 
 **改內容只動 `data/stops.js`。** 那裡是純資料陣列，不需要碰邏輯。
