@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F8FB">
+<title>東京 2026｜9/16 作戰</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=DotGothic16&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<div class="view on" id="v-run">
+<div class="bar">
+  <div class="bar-clock" id="clock">--:--</div>
+  <div class="bar-next">
+    <div class="bar-label" id="nextLabel">下一站</div>
+    <div class="bar-name" id="nextName">尚未開始</div>
+  </div>
+  <div class="bar-dex"><img id="barSprite" alt="" hidden><span class="bar-count" id="count">0/37</span></div>
+</div>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">9月16日（三）· 07:00 開賣</div>
+    <h1>上午 25 家超商<br><em>下午 12 家店</em></h1>
+    <p class="hero-sub">30th CELEBRATION 全球同步發售。勾掉一站捕獲一隻，超商全部跑完剛好收服 #025 皮卡丘。</p>
+    <div class="cd">
+      <div class="cd-u"><span class="cd-n" id="cdD">--</span><span class="cd-l">Days</span></div>
+      <div class="cd-u"><span class="cd-n" id="cdH">--</span><span class="cd-l">Hrs</span></div>
+      <div class="cd-u"><span class="cd-n" id="cdM">--</span><span class="cd-l">Min</span></div>
+      <div class="cd-tag" id="cdTag">距離開賣</div>
+    </div>
+  </header>
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>第一階段 · 07:00–08:40</h2></div>
+    <p class="sec-note">內神田起手，往西北畫弧後東南收回，南下日本橋，沿昭和通り直線北上。全程無回頭路。</p>
+    <ul class="rail" id="rail1"></ul>
+    <div class="phase-meta"><span>14 STOPS</span><span>06:45 出發</span><span>90 秒／店</span></div>
+  </section>
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>第二階段 · 09:50–11:30</h2></div>
+    <p class="sec-note">全家多數 10:00 才開賣。09:55 就位第一家，之後由西向東單向推進。</p>
+    <ul class="rail" id="rail2"></ul>
+    <div class="phase-meta"><span>11 STOPS</span><span>中場早餐</span><span>滑 X 看戰況</span></div>
+  </section>
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>下午 · 13:00–16:40</h2></div>
+    <p class="sec-note">補上午完全沒碰的外神田到上野。這段不用趕，架上有就有，看到順路的超商也順手進去問。</p>
+    <ul class="rail" id="rail3"></ul>
+    <div class="phase-meta"><span>12 STOPS</span><span>不趕時間</span><span>帶護照退稅</span></div>
+    <button class="reset" id="reset">清除所有勾選</button>
+  </section>
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>落後了就照這個順序砍</h2></div>
+    <p class="sec-note">在第 6 站（鍛冶町）看錶。落後就從上往下棄，別硬跑完。</p>
+    <ol class="triage">
+      <li><b>ミニストップ 日本橋本石町店</b>　繞路 400m，07:45 後直接跳過</li>
+      <li><b>ミニストップ 神田錦町店</b>　西向弧線最遠點</li>
+      <li><b>セブン 日本橋室町三丁目店</b>　日本橋四連拍裡最可省的</li>
+      <li class="keep"><b>ローソン ×3</b>　配額最高，絕對不砍</li>
+      <li class="keep"><b>ファミマ 浅草橋四丁目店</b>　新開幕冷門店，絕對不砍</li>
+    </ol>
+  </section>
+</div>
+</div>
+
+<div class="view" id="v-trip">
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Tokyo · 2026.09.15 — 09.21</div>
+    <h1>七天六夜<br>東京 × <em>輕井澤</em></h1>
+    <p class="hero-sub">兩段搶購中間夾一趟輕井澤，不會連續三天都在人擠人。</p>
+  </header>
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>行程</h2></div>
+    <p class="sec-note">輕井澤只帶隨身背包，大行李寄放東京飯店。</p>
+    <div id="days"></div>
+  </section>
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>幾個判斷的理由</h2></div>
+    <p class="sec-note">之後想改行程的時候，先回頭看這幾條。</p>
+    <div class="card"><h3>為什麼 9/19 才回秋葉原買單卡</h3><p>發售前兩天是炒作初動價，最高也最亂。到第 4 天，全日本的拆包量已經流入二級市場，卡價開始沉澱，Showcase 品項最齊、最好比價。今年還是全球同步發售，海外拆包量也會一起灌進來。</p></div>
+    <div class="card"><h3>為什麼 9/19 上午先去池袋</h3><p>寶可夢中心 Mega Tokyo 停業五個月後才剛重新開幕，短期內有入店限制。週六 13:00 後常直接管制入場，10:00 開店即入是唯一舒服的窗口。秋葉原卡店整天都在收購補貨，下午到不吃虧。</p></div>
+    <div class="card"><h3>為什麼 9/20 選橫濱不選鎌倉</h3><p>17–18 已經跑輕井澤，20 號再衝鎌倉會變成三天都在搭車。橫濱車程只要 25–30 分，海港、紅磚倉庫、纜車夜景跟輕井澤的森林完全錯開，也避開週六江之島的人潮。</p></div>
+  </section>
+</div>
+</div>
+
+<div class="view" id="v-info">
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Field Notes</div>
+    <h1>日文、規則<br>與<em>出發前</em></h1>
+    <p class="hero-sub">現場要用的句子、各連鎖限購規則、9/15 勘查清單。</p>
+  </header>
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>日文速查</h2></div>
+    <p class="sec-note">點一下放大，直接拿給店員看。</p>
+    <div id="phrases"></div>
+  </section>
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>各連鎖規則</h2></div>
+    <p class="sec-note">數字取自 7/31 上一彈實測，每一彈都可能變動，當天以 X 情報為準。</p>
+    <table class="tbl">
+      <thead><tr><th>連鎖</th><th>開賣</th><th>限購</th><th>單店進貨</th></tr></thead>
+      <tbody>
+        <tr><td class="c-lawson">ローソン</td><td class="num">07:00</td><td class="num">10 包</td><td class="num">最多 9 盒</td></tr>
+        <tr><td class="c-seven">セブン</td><td class="num">07:00–10:00</td><td>有限制</td><td class="num">最多 6 盒</td></tr>
+        <tr><td class="c-famima">ファミマ</td><td class="num">10:00</td><td class="num">10 包</td><td>—</td></tr>
+        <tr><td class="c-ministop">ミニストップ</td><td>不確定 ⚠</td><td>—</td><td>—</td></tr>
+        <tr><td class="c-newdays">NewDays</td><td>開店時</td><td class="num">5 包</td><td>—</td></tr>
+      </tbody>
+    </table>
+    <div class="card" style="margin-top:.8rem"><h3>深夜 0 點販售已全面禁止</h3><p>官方基於噪音與兒童安全全面停止深夜開賣，不用考慮半夜卡位。一包 360 日圓、6 張全閃；跑滿全程大約需要 9～10 萬日圓現金。</p></div>
+  </section>
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>出發前 · 9/15 勘查</h2></div>
+    <p class="sec-note">前一天騎一趟問過，隔天就是一條驗證過的線。這一小時投報率最高。</p>
+    <ul class="chk" id="recon"></ul>
+  </section>
+  <footer>
+    即時入荷情報 · <a href="https://gamenv.net/tc/stores/">gamenv.net/tc/stores</a><br>
+    X · @gamegetnavi ／ @keita_anime3939 ／ @pokemoncenterPR<br>
+    搜尋關鍵字 · ポケカ 神田 ／ ポケカ 秋葉原 入荷 ／ #ポケカ買えた<br>
+    寶可夢圖鑑資料 · <a href="https://pokeapi.co">PokéAPI</a>
+  </footer>
+</div>
+</div>
+
+<nav class="nav">
+  <button data-v="run" class="on"><span class="ic">🏃</span>路跑</button>
+  <button data-v="trip"><span class="ic">🗾</span>行程</button>
+  <button data-v="info"><span class="ic">📋</span>情報</button>
+</nav>
+
+<script src="data/stops.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
