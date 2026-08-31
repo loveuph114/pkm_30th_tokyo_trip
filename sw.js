@@ -1,7 +1,7 @@
 // 快取策略：
 // - 同源（頁面／stops.js／app.js）：網路優先，斷線才退回快取 → 資料永遠是最新的
 // - 跨源（sprite／字體／PokeAPI）：先吃快取、背景更新 → 騎車時圖片秒開
-const VER = 'tokyo2026-v1';
+const VER = 'tokyo2026-v2';
 const CORE = [
   './',
   'index.html',
@@ -30,8 +30,9 @@ self.addEventListener('fetch', e => {
 
   if (sameOrigin || e.request.mode === 'navigate') {
     // 網路優先：成功就更新快取，失敗（斷線）退回快取
+    // cache:'no-cache' 強制向伺服器重新驗證，避免被 HTTP 快取架空（沒變就 304，成本低）
     e.respondWith(
-      fetch(e.request).then(res => {
+      fetch(e.request, { cache: 'no-cache' }).then(res => {
         const copy = res.clone();
         caches.open(VER).then(c => c.put(e.request, copy));
         return res;
