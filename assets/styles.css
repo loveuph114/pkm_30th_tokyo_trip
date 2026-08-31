@@ -21,6 +21,7 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
+html{color-scheme:light;background:var(--bg)}
 body{
   background:var(--bg);color:var(--ink);
   font-family:var(--tc);font-size:15px;line-height:1.65;
