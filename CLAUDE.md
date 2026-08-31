@@ -82,6 +82,10 @@ P1+P2+P3 共 37 站，依序對應圖鑑編號 001–037，`SPRITE(n)` 從 PokeA
 - [ ] 池袋寶可夢中心 Mega Tokyo 8/24 已重開，8/24–31 為 09:00 起店門口發
       時間帶整理券（本人親領、指定時段、可能視人流改自由入場）。
       9 月安排尚未公布，公布後更新 `DAYS` 的 9/19 那筆與行程頁的池袋卡片
+- [ ] Android 安裝版 PWA 的系統導覽列在淺色主題下顯示黑色：Chrome 已知限制
+      （WebAPK 不吃 theme_color），edge-to-edge 支援 2026/07 起陸續補上。
+      本站前置條件已備齊（viewport-fit=cover、safe-area、color-scheme:light），
+      不需改動，等使用者手機 Chrome 更新自然修復。不要為此改 display:fullscreen
 
 ## 慣例
 
