@@ -31,15 +31,15 @@ const P3=[
 ["13:00","トイザらス 錦糸町店","toy","アルカキット錦糸町內，10:00–21:00。秋葉原搭總武線 8 分，非觀光區最大玩具賣場","1275685381960979397"],
 ["13:45","ヨドバシカメラ 錦糸町","kaden","09:30–22:00。錦糸町站前即到，玩具樓層直接問補貨。滿 5,000 円可退稅","11981782040064060698"],
 ["14:20","ドン・キホーテ 錦糸町北口店","donki","09:00–翌04:00。在地客群為主，走進去就能買、不用會員","1168748316009915483"],
-["15:10","イトーヨーカドー 曳舟店","toy","10:00–21:00。半藏門線押上轉東武一站。超市系玩具區，完全在卡友雷達外的經典穴場","17668924120648370766"],
-["17:00","エディオン 秋葉原AKIBA店","kaden","10:00–20:00。愛電王全東京唯一一家，就在秋葉原站前，回程第一站","11208271261249653714"],
-["17:30","駿河屋 秋葉原駅前店","kadoshop","11:00–21:00。中古與新品混賣，卡店整天收購補貨，晚上貨反而齊","https://www.google.com/maps/place/?q=place_id:ChIJVVWgTR2MGGAR67BiGTvaImI"],
-["17:50","ポケ堂／MERO 秋葉原（同棟）","kadoshop","外神田1-2-9，兩家寶可夢專門店在同一棟，一次逛完。⚠️ 現金交易、不退稅","https://www.google.com/maps/place/?q=place_id:ChIJ98jSKACNGGAR-N-8zGLOYZg"],
-["18:15","トレカ大明神 秋葉原","kadoshop","週三 13:00 才開，晚上正好。評價說價格是秋葉原一帶最實在的","https://www.google.com/maps/place/?q=place_id:ChIJDwC2zMaNGGARAc6VYbFVXxA"],
-["18:40","TCG GATE 秋葉原本店","kadoshop","12:00–20:00，抓緊。818 則評論滿分，店員英文通、價格可談","https://www.google.com/maps/place/?q=place_id:ChIJsajlOEmNGGARTv_QnuHTuNM"],
-["19:10","駿河屋 秋葉原本館","kadoshop","七層樓大店，11:00–21:00。可退稅","https://www.google.com/maps/place/?q=place_id:ChIJhTzCxUiNGGARfWRafi-eBys"],
-["19:40","ヨドバシカメラ マルチメディアAkiba","kaden","營業到 22:00。收剩貨壓場，滿 5,000 円可退稅","https://www.google.com/maps/place/?q=place_id:ChIJGU_M2aeOGGARdnOLcMYXuXs"],
-["20:10","ドン・キホーテ 秋葉原","donki","24 小時壓軸。逛完直接電氣街晚餐。可退稅","https://www.google.com/maps/place/?q=place_id:ChIJ7S15lB2MGGARvsUPQb9by7c"]
+["14:50","アニメイト 錦糸町","toy","11:00–20:00。距ドンキ 250m。動漫連鎖有 TCG 專區、新品照定價，在地學生客群","3111345069894782996"],
+["16:00","エディオン 秋葉原AKIBA店","kaden","10:00–20:00。愛電王全東京唯一一家，就在秋葉原站前，回程第一站","11208271261249653714"],
+["16:40","駿河屋 秋葉原駅前店","kadoshop","11:00–21:00。中古與新品混賣，卡店整天收購補貨，晚上貨反而齊","https://www.google.com/maps/place/?q=place_id:ChIJVVWgTR2MGGAR67BiGTvaImI"],
+["17:10","ポケ堂／MERO 秋葉原（同棟）","kadoshop","外神田1-2-9，兩家寶可夢專門店在同一棟，一次逛完。⚠️ 現金交易、不退稅","https://www.google.com/maps/place/?q=place_id:ChIJ98jSKACNGGAR-N-8zGLOYZg"],
+["17:40","トレカ大明神 秋葉原","kadoshop","週三 13:00 才開，傍晚正好。評價說價格是秋葉原一帶最實在的","https://www.google.com/maps/place/?q=place_id:ChIJDwC2zMaNGGARAc6VYbFVXxA"],
+["18:10","TCG GATE 秋葉原本店","kadoshop","12:00–20:00。818 則評論滿分，店員英文通、價格可談","https://www.google.com/maps/place/?q=place_id:ChIJsajlOEmNGGARTv_QnuHTuNM"],
+["18:45","駿河屋 秋葉原本館","kadoshop","七層樓大店，11:00–21:00。可退稅","https://www.google.com/maps/place/?q=place_id:ChIJhTzCxUiNGGARfWRafi-eBys"],
+["19:20","ヨドバシカメラ マルチメディアAkiba","kaden","營業到 22:00。收剩貨壓場，滿 5,000 円可退稅","https://www.google.com/maps/place/?q=place_id:ChIJGU_M2aeOGGARdnOLcMYXuXs"],
+["19:50","ドン・キホーテ 秋葉原","donki","24 小時壓軸。逛完直接電氣街晚餐。可退稅","https://www.google.com/maps/place/?q=place_id:ChIJ7S15lB2MGGARvsUPQb9by7c"]
 ];
 const PHRASES=[
 ["9/15 勘查","明日発売のポケモンカード、入荷の予定ってありますか？","明天發售的寶可夢卡，有進貨的預定嗎？"],
@@ -63,7 +63,7 @@ const RECON=[
 ];
 const DAYS=[
 ["9/15","二","抵達東京 · 秋葉原","上午班機抵成田 → 進市區 → 飯店 Check-in → 勘查路線、綁定單車 App、備妥零錢",0],
-["9/16","三","搶卡日","07:00–08:40 超商第一階段 → 09:50–11:30 第二階段 → 13:00–16:30 錦糸町・曳舟非觀光區掃貨 → 17:00 回秋葉原卡店巡禮、電氣街晚餐 → 回旅館開包、慢慢整理日光隨身包",1],
+["9/16","三","搶卡日","07:00–08:40 超商第一階段 → 09:50–11:30 第二階段 → 13:00–15:30 錦糸町非觀光區掃貨（四家全在站前）→ 16:00 回秋葉原卡店巡禮、電氣街晚餐 → 回旅館開包、慢慢整理日光隨身包",1],
 ["9/17","四","日光","淺草搭東武特急直達 → 東照宮、二荒山神社 → 湯波料理午餐 → 伊呂波坂上山 · 中禪寺湖畔溫泉住宿",0],
 ["9/18","五","日光 → 東京","華嚴瀑布 → 中禪寺湖畔散步、龍頭瀑布 → 午後下山回東京市區",0],
 ["9/19","六","池袋 → 中野","08:50 抵 Sunshine City → 09:00 領 Mega Tokyo 時間帶整理券（若改自由入場則 10:00 開店即入）→ 依時段入店 → 池袋卡店、午餐 → 13:30 移動（山手線轉中央線）→ 14:00–18:00 中野百老匯 まんだらけ 舊卡尋寶",1],
