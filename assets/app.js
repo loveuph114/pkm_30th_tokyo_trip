@@ -142,3 +142,7 @@ tick();setInterval(tick,1000);
 loadDone();
 render();
 loadDex();
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{/* 註冊失敗不影響使用 */});
+}

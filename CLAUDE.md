@@ -18,8 +18,10 @@ GitHub Pages 直接吃靜態檔，改一行就能推。請維持這個狀態。
 ```
 index.html          # 三個 .view 區塊 + 底部分頁
 assets/styles.css   # 全部樣式，CSS 變數在 :root
-assets/app.js       # 渲染、勾選狀態、倒數、分頁切換
+assets/app.js       # 渲染、勾選狀態、倒數、分頁切換、SW 註冊
 data/stops.js       # 所有資料（P1/P2/P3/PHRASES/RECON/DAYS/BOOKINGS）
+manifest.webmanifest # PWA 設定（可裝到主畫面）
+sw.js               # Service Worker：同源網路優先（資料保鮮）、跨源快取優先（sprite 秒開）
 ```
 
 **改內容只動 `data/stops.js`。** 那裡是純資料陣列，不需要碰邏輯。
