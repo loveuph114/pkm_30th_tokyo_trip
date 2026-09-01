@@ -2,6 +2,14 @@ const ALL=[...P1.map((d,i)=>[d,'a'+i]),...P2.map((d,i)=>[d,'b'+i]),...P3.map((d,
 const SPRITE=n=>'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+n+'.png';
 let done=new Set();
 const KEY='tokyo2026:done';
+let prepDone=new Set();
+const PREP_KEY='tokyo2026:prep';
+function loadPrep(){
+  try{const v=localStorage.getItem(PREP_KEY);if(v)prepDone=new Set(JSON.parse(v));}catch(e){}
+}
+function savePrep(){
+  try{localStorage.setItem(PREP_KEY,JSON.stringify([...prepDone]));}catch(e){}
+}
 
 async function loadDex(){
   try{
@@ -65,6 +73,20 @@ function render(){
     el.addEventListener('click',t);
     el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();t();}});
     ph.appendChild(el);
+  });
+
+  const pp=document.getElementById('prep');
+  PREP.forEach((p,i)=>{
+    const li=document.createElement('li');li.tabIndex=0;
+    if(prepDone.has(i))li.classList.add('on');
+    li.innerHTML='<span class="prep-cat">'+p[0]+'</span><span>'+p[1]+'</span>';
+    const g=()=>{
+      if(prepDone.has(i)){prepDone.delete(i);}else{prepDone.add(i);}
+      li.classList.toggle('on');savePrep();
+    };
+    li.addEventListener('click',g);
+    li.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();g();}});
+    pp.appendChild(li);
   });
 
   const rc=document.getElementById('recon');
@@ -165,6 +187,7 @@ function tick(){
 tick();setInterval(tick,1000);
 
 loadDone();
+loadPrep();
 render();
 loadDex();
 

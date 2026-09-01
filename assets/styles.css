@@ -129,6 +129,8 @@ section{padding:2.2rem 1rem 0}
 .chk li.on{opacity:.4}
 .chk li.on::before{content:"\25CF";color:var(--famima)}
 .chk li.on span{text-decoration:line-through}
+.prep-cat{font-family:var(--mono);font-size:.58rem;font-weight:600;letter-spacing:.04em;color:var(--indigo);border:1px solid currentColor;border-radius:99px;padding:.05rem .42rem;flex-shrink:0;margin-top:.14rem;white-space:nowrap;text-decoration:none!important}
+.chk li.on .prep-cat{text-decoration:none}
 
 .day{display:grid;grid-template-columns:3.4rem 1fr;gap:.85rem;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.9rem 1rem;margin-bottom:.5rem}
 .day-d{font-family:var(--mono);font-size:.76rem;color:var(--dim);font-variant-numeric:tabular-nums;padding-top:.15rem;line-height:1.4}
