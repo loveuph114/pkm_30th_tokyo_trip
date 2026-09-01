@@ -80,11 +80,11 @@ function render(){
   const dv=document.getElementById('days');
   DAYS.forEach(d=>{
     const el=document.createElement('div');
-    el.className='day'+(d[4]?' hot':'');
+    el.className='day tl'+(d[4]?' hot':'');
     const tl=d[3].map(it=>
       '<li'+(it[2]?' class="key"':'')+'><span class="tl-t">'+it[0]+'</span><span>'+it[1]+'</span></li>'
     ).join('');
-    el.innerHTML='<div class="day-d">'+d[0]+'<br>'+d[1]+'</div><div><div class="day-t">'+d[2]+'</div><ul class="day-tl">'+tl+'</ul></div>';
+    el.innerHTML='<div class="day-head"><span class="day-d">'+d[0]+' '+d[1]+'</span><span class="day-t">'+d[2]+'</span></div><ul class="day-tl">'+tl+'</ul>';
     dv.appendChild(el);
   });
 
