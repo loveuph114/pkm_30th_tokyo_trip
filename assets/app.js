@@ -87,7 +87,7 @@ function render(){
       const li=document.createElement('li');
       if(it[2])li.className='key';
       const opts=it[3];
-      if(!opts){
+      if(!opts||!opts.length){
         li.innerHTML='<span class="tl-t">'+it[0]+'</span><span>'+it[1]+'</span>';
       }else{
         li.classList.add('pick');li.tabIndex=0;
