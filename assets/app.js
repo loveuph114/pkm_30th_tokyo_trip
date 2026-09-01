@@ -81,10 +81,32 @@ function render(){
   DAYS.forEach(d=>{
     const el=document.createElement('div');
     el.className='day tl'+(d[4]?' hot':'');
-    const tl=d[3].map(it=>
-      '<li'+(it[2]?' class="key"':'')+'><span class="tl-t">'+it[0]+'</span><span>'+it[1]+'</span></li>'
-    ).join('');
-    el.innerHTML='<div class="day-head"><span class="day-d">'+d[0]+' '+d[1]+'</span><span class="day-t">'+d[2]+'</span></div><ul class="day-tl">'+tl+'</ul>';
+    el.innerHTML='<div class="day-head"><span class="day-d">'+d[0]+' '+d[1]+'</span><span class="day-t">'+d[2]+'</span></div><ul class="day-tl"></ul>';
+    const ul=el.querySelector('.day-tl');
+    d[3].forEach(it=>{
+      const li=document.createElement('li');
+      if(it[2])li.className='key';
+      const opts=it[3];
+      if(!opts){
+        li.innerHTML='<span class="tl-t">'+it[0]+'</span><span>'+it[1]+'</span>';
+      }else{
+        li.classList.add('pick');li.tabIndex=0;
+        li.innerHTML='<span class="tl-t">'+it[0]+'</span>'+
+          '<div class="tl-body"><div class="tl-line"><span>'+it[1]+'</span>'+
+          '<span class="tl-badge">'+opts.length+' 選<span class="tl-caret">▾</span></span></div>'+
+          '<ul class="tl-opts">'+opts.map(o=>
+            '<li class="opt"><div class="opt-line"><span class="opt-name">'+o[0]+'</span>'+
+            '<span class="opt-tag">'+o[1]+'</span><span class="opt-score">食べログ '+o[2]+'</span></div>'+
+            '<div class="opt-note">'+o[3]+'</div>'+
+            '<div class="stop-foot"><a class="mapbtn" href="'+o[4]+'" target="_blank" rel="noopener">開地圖 ↗</a></div></li>'
+          ).join('')+'</ul></div>';
+        li.querySelectorAll('.mapbtn').forEach(a=>a.addEventListener('click',e=>e.stopPropagation()));
+        const t=()=>li.classList.toggle('open');
+        li.addEventListener('click',t);
+        li.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();t();}});
+      }
+      ul.appendChild(li);
+    });
     dv.appendChild(el);
   });
 

@@ -148,6 +148,25 @@ section{padding:2.2rem 1rem 0}
 .day-tl li.key{color:var(--ink)}
 .day-tl li.key .tl-t{color:var(--red);font-weight:700}
 
+/* 時間軸可展開列（例：9/15 午餐口袋名單） */
+.day-tl li.pick{cursor:pointer}
+.day-tl li.pick .tl-body{flex:1;min-width:0}
+.tl-line{display:flex;align-items:baseline;gap:.5rem}
+.tl-line>span:first-child{flex:1}
+.tl-badge{flex-shrink:0;font-family:var(--mono);font-size:.6rem;font-weight:600;letter-spacing:.06em;color:var(--indigo);border:1px solid currentColor;border-radius:99px;padding:.08rem .5rem;white-space:nowrap}
+.tl-caret{display:inline-block;margin-left:.3rem;transition:transform .18s ease}
+.day-tl li.pick.open .tl-caret{transform:rotate(180deg)}
+.tl-opts{list-style:none;margin:.15rem 0 0;padding:0;display:none}
+.day-tl li.pick.open .tl-opts{display:block}
+.tl-opts .opt{display:block;padding:.5rem 0 .4rem}
+.tl-opts .opt+.opt{border-top:1px dashed var(--line-soft)}
+.opt-line{display:flex;align-items:baseline;gap:.45rem;flex-wrap:wrap}
+.opt-name{font-family:var(--round);font-weight:700;font-size:.84rem;color:var(--ink)}
+.opt-tag{font-family:var(--mono);font-size:.58rem;color:var(--indigo);border:1px solid currentColor;border-radius:99px;padding:.04rem .4rem}
+.opt-score{font-family:var(--mono);font-size:.66rem;color:var(--red);font-weight:600;font-variant-numeric:tabular-nums}
+.opt-note{font-size:.75rem;color:var(--mid);line-height:1.55;margin:.12rem 0 0}
+.tl-opts .stop-foot{margin-top:.3rem}
+
 .nav{
   position:fixed;left:0;right:0;bottom:0;z-index:60;
   background:rgba(255,255,255,.94);backdrop-filter:blur(16px);
