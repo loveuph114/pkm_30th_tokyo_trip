@@ -164,13 +164,18 @@ document.getElementById('reset').addEventListener('click',()=>{
   updateBar();
 });
 
+// 分頁切換：記住上次停留的分頁，下次開啟直接回到該頁
+const VIEW_KEY='tokyo2026:view';
+function showView(name){
+  if(!document.getElementById('v-'+name))name='run';
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===name));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+name));
+  try{localStorage.setItem(VIEW_KEY,name);}catch(e){}
+}
 document.querySelectorAll('.nav button').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('on',x===b));
-    document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+b.dataset.v));
-    window.scrollTo(0,0);
-  });
+  b.addEventListener('click',()=>{showView(b.dataset.v);window.scrollTo(0,0);});
 });
+try{const v=localStorage.getItem(VIEW_KEY);if(v&&v!=='run')showView(v);}catch(e){}
 
 const TARGET=new Date('2026-09-16T07:00:00+09:00').getTime();
 function tick(){
