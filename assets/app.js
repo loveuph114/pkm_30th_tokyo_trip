@@ -193,7 +193,7 @@ function mountMap(el,pts){
     lib.then(({Map,Marker})=>{
       // 全螢幕改由我們做：把 .map-inner 全螢幕化，用 safe-area 當內距，地圖與所有按鈕整體往內縮
       const ownFs=!!document.fullscreenEnabled;
-      const map=new Map(el,{mapId:'DEMO_MAP_ID',gestureHandling:'greedy',mapTypeControl:false,streetViewControl:false,zoomControl:false,clickableIcons:false,fullscreenControl:!ownFs});
+      const map=new Map(el,{mapId:'DEMO_MAP_ID',gestureHandling:'greedy',mapTypeControl:false,streetViewControl:false,zoomControl:false,cameraControl:false,rotateControl:false,clickableIcons:false,fullscreenControl:!ownFs});
       if(ownFs)map.controls[google.maps.ControlPosition.RIGHT_TOP].push(fsButton(el.parentNode));
       const b=new google.maps.LatLngBounds();
       // 覆蓋層全部走 map.controls 放進地圖內部，全螢幕時才看得到
