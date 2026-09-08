@@ -182,7 +182,7 @@ function mapControls(el){
   const M=el._map,hasRun=M.pts.some(p=>p.id);
   const ctl=document.createElement('div');ctl.className='map-ctl';
   ctl.innerHTML='<button type="button" class="mctl me-btn'+(geoWatch!==null?' on':'')+'">◎ 我</button>'+(hasRun?'<button type="button" class="mctl nx-btn">▶ 下一站</button>':'');
-  el.parentNode.insertBefore(ctl,el.nextSibling);
+  M.map.controls[google.maps.ControlPosition.LEFT_TOP].push(ctl);
   ctl.querySelector('.me-btn').addEventListener('click',()=>startGeo(()=>{
     if(hasRun&&focusNext(el))return;
     M.map.panTo(mePos);if(M.map.getZoom()<15)M.map.setZoom(15);
@@ -254,7 +254,9 @@ function mountMap(el,pts){
     lib.then(({Map,Marker})=>{
       const map=new Map(el,{mapId:'DEMO_MAP_ID',gestureHandling:'greedy',mapTypeControl:false,streetViewControl:false,clickableIcons:false});
       const b=new google.maps.LatLngBounds();
+      // 覆蓋層全部走 map.controls 放進地圖內部，全螢幕時才看得到
       const card=mapCard(el);
+      map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(card.box);
       const markers=pts.map(p=>{
         const [lat,lng]=p.ll.split(',').map(Number);b.extend({lat,lng});
         const m=new Marker({map,position:{lat,lng},content:pinEl(p),title:p.label,zIndex:pinZ(p.state),gmpClickable:true});
@@ -277,11 +279,10 @@ function mountMap(el,pts){
 const fmtDist=d=>d<950?Math.round(d/10)*10+' m':(d/1000).toFixed(1)+' km';
 function mapCard(el){
   const box=document.createElement('div');box.className='map-card';box.hidden=true;
-  el.parentNode.insertBefore(box,el.nextSibling);
   let cur=null,curM=null;
   const placeUrl=p=>p.url||('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.label));
   const navUrl=p=>'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(p.ll)+'&travelmode=walking&dir_action=navigate';
-  const api={selId:null};
+  const api={selId:null,box};
   api.refresh=()=>{
     if(!cur)return;
     const p=cur,isDone=p.id&&done.has(p.id);
@@ -304,7 +305,7 @@ function mapCard(el){
   api.show=(p,m)=>{
     if(curM)curM.content.classList.remove('sel');
     cur=p;curM=m;api.selId=p.id||null;m.content.classList.add('sel');
-    api.refresh();box.hidden=false;
+    api.refresh();box.style.width=Math.min(el.clientWidth-16,520)+'px';box.hidden=false;
   };
   api.hide=()=>{if(curM)curM.content.classList.remove('sel');cur=null;curM=null;api.selId=null;box.hidden=true;};
   return api;
@@ -344,6 +345,7 @@ function buildRunMap(wrap){
   wrap.innerHTML='<div class="chips"><button type="button" class="chip on" data-half="am">上午 '+(P1.length+P2.length)+' 站</button>'+
     '<button type="button" class="chip" data-half="pm">下午 '+P3.length+' 站</button></div><div class="gmap"></div>';
   const el=wrap.querySelector('.gmap');runMaps.push(el);
+  const chips=wrap.querySelector('.chips');chips.hidden=true;
   let half='am';
   const apply=()=>{
     const M=el._map;if(!M)return;
@@ -353,7 +355,10 @@ function buildRunMap(wrap){
   };
   const setHalf=h=>{if(h===half)return;half=h;wrap.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x.dataset.half===h));apply();};
   el._setHalf=setHalf;
-  el._onReady=()=>{apply();if(isRunDay()){startGeo(()=>focusNext(el));focusNext(el);}};
+  el._onReady=()=>{
+    el._map.map.controls[google.maps.ControlPosition.TOP_CENTER].push(chips);chips.hidden=false;
+    apply();if(isRunDay()){startGeo(()=>focusNext(el));focusNext(el);}
+  };
   wrap.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>setHalf(c.dataset.half)));
   mountMap(el,runPts('am').concat(runPts('pm')));
 }

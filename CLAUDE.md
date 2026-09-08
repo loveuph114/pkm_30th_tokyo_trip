@@ -47,6 +47,8 @@ sw.js               # Service Worker：同源網路優先（資料保鮮）、�
   `loveuph114.github.io` 與 `localhost:8000`。
 - 圖釘用 `AdvancedMarkerElement`＋`mapId:'DEMO_MAP_ID'`（Google 的預設樣式 id，不用另建），
   content 是自製的 `.pin` div，狀態變化只改 className，不換元素。
+- 地圖上的覆蓋層（上午／下午切換、「我」「下一站」、資訊卡）全部走 `map.controls` 放進地圖內部，
+  不要用兄弟節點加 absolute 定位：全螢幕時只會顯示地圖元素的子樹，外面的東西會消失。
 - `sw.js` 對 `maps.*` 與 `*.google.com` 主機直接放行，不進 SW 快取（腳本版本會變、圖磚量大）。
 - Google Maps 在背景分頁不會初始化，用瀏覽器面板測試時要把分頁切到前景。
 

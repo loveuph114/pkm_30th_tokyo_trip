@@ -201,7 +201,8 @@ footer a{color:var(--indigo)}
 .keyform input{width:100%;box-sizing:border-box;font-family:var(--mono);font-size:.85rem;padding:.55rem .7rem;border:1px solid var(--line);border-radius:8px;background:var(--card);margin-bottom:.45rem}
 .keyform button{font-family:var(--round);font-weight:700;font-size:.85rem;padding:.55rem 1rem;border:0;border-radius:8px;background:var(--indigo);color:#fff;width:100%}
 .map-err{font-size:.8rem;color:var(--red);padding:1rem;margin:0}
-.chips{display:flex;gap:.4rem;margin:0 0 .5rem}
+.chips{display:flex;gap:.4rem;margin:8px 0 0}
+.chips .chip{box-shadow:0 1px 4px rgba(0,0,0,.18)}
 .chip{font-family:var(--mono);font-size:.66rem;letter-spacing:.05em;padding:.32rem .7rem;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--mid);font-weight:600}
 .chip.on{background:var(--indigo);border-color:var(--indigo);color:#fff}
 .map-foot{margin:.5rem 0 0;font-size:.7rem;color:var(--dim)}
@@ -219,7 +220,7 @@ footer a{color:var(--indigo)}
 /* 地圖資訊卡與 sprite icon */
 .map-box{position:relative}
 .map-inner{position:relative}
-.map-card{position:absolute;left:.5rem;right:.5rem;bottom:.5rem;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.7rem .8rem;box-shadow:0 6px 20px rgba(20,30,60,.18);font-size:.8rem}
+.map-card{margin:0 8px 8px;box-sizing:border-box;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.7rem .8rem;box-shadow:0 6px 20px rgba(20,30,60,.18);font-size:.8rem}
 .mc-head{display:flex;align-items:flex-start;gap:.55rem}
 .mc-spr{width:40px;height:40px;image-rendering:pixelated;flex-shrink:0;margin:-.2rem 0 0 -.2rem}
 .mc-no{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--indigo);color:#fff;font-family:var(--mono);font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center}
@@ -235,7 +236,7 @@ footer a{color:var(--indigo)}
 .pin.sel{outline:3px solid rgba(39,64,139,.35);outline-offset:1px}
 
 /* 地圖控制鈕、定位藍點、toast */
-.map-ctl{position:absolute;top:.5rem;left:.5rem;z-index:5;display:flex;gap:.3rem}
+.map-ctl{margin:8px;display:flex;flex-direction:column;align-items:flex-start;gap:.3rem}
 .mctl{font-family:var(--mono);font-size:.66rem;font-weight:600;letter-spacing:.03em;padding:.34rem .62rem;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--indigo);box-shadow:0 1px 4px rgba(0,0,0,.18);cursor:pointer}
 .mctl.on{background:var(--indigo);border-color:var(--indigo);color:#fff}
 .me{width:16px;height:16px;border-radius:50%;background:#1A73E8;border:3px solid #fff;box-shadow:0 0 0 6px rgba(26,115,232,.25);transform:translateY(8px);box-sizing:content-box}
