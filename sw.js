@@ -1,13 +1,14 @@
 // 快取策略：
 // - 同源（頁面／stops.js／app.js）：網路優先，斷線才退回快取 → 資料永遠是最新的
 // - 跨源（sprite／字體／PokeAPI）：先吃快取、背景更新 → 騎車時圖片秒開
-const VER = 'tokyo2026-v3';
+const VER = 'tokyo2026-v4';
 const CORE = [
   './',
   'index.html',
   'assets/styles.css',
   'assets/app.js',
   'data/stops.js',
+  'data/meals.js',
   'assets/favicon.svg',
   'assets/icon-192.png'
 ];

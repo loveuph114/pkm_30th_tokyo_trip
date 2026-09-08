@@ -20,6 +20,7 @@ index.html          # 三個 .view 區塊 + 底部分頁
 assets/styles.css   # 全部樣式，CSS 變數在 :root
 assets/app.js       # 渲染、勾選狀態、倒數、分頁切換、SW 註冊
 data/stops.js       # 所有資料（P1/P2/P3/PHRASES/RECON/DAYS/BOOKINGS）
+data/meals.js       # 每天午餐／晚餐口袋名單（MEALS）——由 notes/gen_meals.py 產生，不要手改
 manifest.webmanifest # PWA 設定（可裝到主畫面）
 sw.js               # Service Worker：同源網路優先（資料保鮮）、跨源快取優先（sprite 秒開）
 ```
@@ -34,6 +35,25 @@ sw.js               # Service Worker：同源網路優先（資料保鮮）、�
   自動組成（上午＝飯店＋P1＋P2、下午＝P3），刪站不用改。
 - 解析座標用的 script 與原始輸出在 `notes/`。
 - 導航不做站內路線按鈕（曾做過、已拿掉）：從地圖資訊卡的「導航」開 Google Maps 就好。
+
+### 餐廳口袋名單（行程頁日卡「午餐」「晚餐」鈕）
+
+每張日卡標題列有「午餐」「晚餐」兩顆鈕（互斥），各展開一張內嵌地圖（圖釘＝名單排名，橘＝午餐、紫＝晚餐）
+加名單；點名單列會讓地圖聚焦該店並開資訊卡。資料在 `data/meals.js` 的 `MEALS`，
+每列 `[店名, 類型（中文）, 分數, 距離, 預算, Tabelog 連結, "lat,lng", [縮圖…]]`。
+- 來源是 Tabelog 站點搜尋（2026-09-08 抓）：車站周邊 500m、依評分排、只收 3.5 以上
+  （中禅寺湖店少，放寬到 3.0）、午餐預算～¥3,000、晚餐～¥6,000、剔除純咖啡／甜點／麵包／酒吧。
+- 座標從各店頁面 JSON-LD 抓（`notes/tabelog_coords.txt`）；縮圖是列表頁的 3 張 320px 方圖，
+  路徑存在 meals.js、由 `MEAL_IMG` 前綴直接外連 tblg.k-img.com（已確認不擋外站 referer），圖片不進 repo。
+- 類型翻譯表在 `notes/genre_zh.py`，新類型沒對到會在產生時印出「未翻譯類型」。
+- 原始抓取結果在 `notes/tabelog_dump2_part1–3.txt`，整理 script 是 `notes/gen_meals.py`。
+  **要改條件或換車站，改 script 重跑**，不要手改 meals.js。
+- 名單只是候選：定休日、當天是否營業都沒逐店查。選定後照舊規則用 Google Maps 確認「營業中」，
+  9/15 的最終選擇填回 `stops.js` 的 `LUNCH_0915`。
+- Tabelog 連結用 `tabelog.com/{pref}/A0000/A000000/{店ID}/`，區域碼給 0 也能開（已驗證）。
+- Tabelog 有 Cloudflare 人機驗證，app 內建瀏覽器與直接抓網頁都會被擋；用 Claude in Chrome
+  在真人 Chrome 裡以頁內 fetch 抓列表才行。網址參數：`LstRange=SG`（500m）、`SrtT=rt&Srt=D`（評分排序）、
+  `RdoCosTp=2&LstCosT=3`（午餐預算上限 ¥3,000；`RdoCosTp=1` 是晚餐）。
 
 ### 內嵌 Google 地圖（Maps JavaScript API）
 

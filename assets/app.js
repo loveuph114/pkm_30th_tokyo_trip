@@ -230,15 +230,19 @@ function mapCard(el){
   api.refresh=()=>{
     if(!cur)return;
     const p=cur,isDone=p.id&&done.has(p.id);
+    // 餐廳圖釘（p.img／p.score／p.url2）：縮圖取代編號、副標顯示分數、多一顆 Google 地圖鈕
     box.innerHTML='<div class="mc-head">'+
-      (p.dex?'<img class="mc-spr" src="'+SPRITE(p.dex)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="mc-no">'+p.no+'</span>')+
-      '<div class="mc-txt"><div class="mc-name">'+p.label+'</div>'+
-      '<div class="mc-sub">'+(p.time||'')+(p.brand?'<span class="pill p-'+p.brand+'">'+p.brand+'</span>':'')+
+      (p.img?'<img class="mc-photo" src="'+p.img+'" alt="" onerror="this.style.visibility=\'hidden\'">':
+       p.dex?'<img class="mc-spr" src="'+SPRITE(p.dex)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="mc-no">'+p.no+'</span>')+
+      '<div class="mc-txt"><div class="mc-name">'+(p.img?'<span class="mc-rank">'+p.no+'</span>':'')+p.label+'</div>'+
+      '<div class="mc-sub">'+(p.time||'')+(p.score?'<span class="mc-score">食べログ '+p.score+'</span>':'')+
+      (p.brand&&!p.score?'<span class="pill p-'+p.brand+'">'+p.brand+'</span>':'')+
       (mePos?'<span class="mc-dist">距你 '+fmtDist(distM(mePos,llOf(p)))+'</span>':'')+'</div>'+
       '</div><button type="button" class="mc-x" aria-label="關閉">×</button></div>'+
       (p.note?'<div class="mc-note">'+p.note+'</div>':'')+
       '<div class="mc-acts">'+
-      '<a class="mapbtn rt" href="'+placeUrl(p)+'" target="_blank" rel="noopener">'+icon('town-map','🗺')+'打開地點</a>'+
+      '<a class="mapbtn rt" href="'+placeUrl(p)+'" target="_blank" rel="noopener">'+icon('town-map','🗺')+(p.urlLabel||'打開地點')+'</a>'+
+      (p.url2?'<a class="mapbtn rt" href="'+p.url2+'" target="_blank" rel="noopener">'+icon('town-map','🗺')+'Google 地圖</a>':'')+
       '<a class="mapbtn rt" href="'+navUrl(p)+'" target="_blank" rel="noopener">'+icon('dowsing-machine','🧭')+'導航</a>'+
       (p.id?'<button type="button" class="mapbtn rt mt mc-done'+(isDone?' on':'')+'">'+icon('poke-ball','●')+(isDone?'取消完成':'完成')+'</button>':'')+
       '</div>';
@@ -330,7 +334,7 @@ function dayMapToggle(card,date,head,before){
   const pts=date==='9/16'?null:dayPts(date);
   if(pts&&!pts.length)return;
   const btn=document.createElement('button');btn.type='button';btn.className='mapbtn rt mt';btn.innerHTML=icon('poke-radar','📍')+'地圖';
-  head.appendChild(btn);
+  (head.querySelector('.day-btns')||head).appendChild(btn);
   const wrap=document.createElement('div');wrap.className='day-map map-box';wrap.hidden=true;card.insertBefore(wrap,before);
   btn.addEventListener('click',e=>{
     e.stopPropagation();
@@ -340,6 +344,57 @@ function dayMapToggle(card,date,head,before){
     if(pts){wrap.innerHTML='<div class="gmap"></div>';mountMap(wrap.firstChild,pts);}
     else buildRunMap(wrap);
   });
+}
+
+// 行程日卡：「午餐」「晚餐」兩顆鈕，各自展開一張地圖（圖釘＝名單排名）＋名單（MEALS，由 notes/gen_meals.py 產生）
+// 同一天兩個面板互斥；第一次展開才建地圖與 DOM。點名單列 → 地圖聚焦該店並開資訊卡
+const MEAL_IMG='https://tblg.k-img.com/restaurant/images/Rvw/';
+function dayMealToggle(card,date,head,before){
+  const m=typeof MEALS!=='undefined'&&MEALS[date];
+  if(!m)return;
+  const gmap=n=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(n);
+  const panels=[];
+  [['lunch','午餐','lava-cookie','🍱'],['dinner','晚餐','moomoo-milk','🍶']].forEach(([k,label,ic,fb])=>{
+    const s=m[k];if(!s||!s.list.length)return;
+    const btn=document.createElement('button');btn.type='button';btn.className='mapbtn rt mt meal '+k;btn.innerHTML=icon(ic,fb)+label;
+    (head.querySelector('.day-btns')||head).appendChild(btn);
+    const wrap=document.createElement('div');wrap.className='day-meals map-box';wrap.hidden=true;card.insertBefore(wrap,before);
+    panels.push({btn,wrap});
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const open=wrap.hidden;
+      panels.forEach(p=>{p.wrap.hidden=true;p.btn.classList.remove('on');});
+      if(!open)return;
+      wrap.hidden=false;btn.classList.add('on');
+      if(wrap.dataset.ready)return;wrap.dataset.ready='1';
+      build(wrap,s,k);
+    });
+  });
+  function build(wrap,s,k){
+    // 每列：[店名, 類型, 分數, 距離, 預算, Tabelog 連結, "lat,lng", [縮圖…]]
+    const pts=[];
+    s.list.forEach((o,i)=>{if(!o[6])return;pts.push({ll:o[6],no:String(i+1),label:o[0],brand:k,score:o[2],note:o[1]+' · '+o[3]+' · '+o[4],
+      url:o[5],urlLabel:'食べログ',url2:gmap(o[0]),img:o[7]&&o[7][0]?MEAL_IMG+o[7][0]:''});});
+    wrap.innerHTML='<div class="gmap"></div><p class="meal-note">'+s.note+(pts.length<s.list.length?'（'+(s.list.length-pts.length)+' 家沒座標，只在名單）':'')+'</p><ul class="tl-opts meal-list"></ul>';
+    const ul=wrap.querySelector('.meal-list'),gm=wrap.querySelector('.gmap');
+    s.list.forEach((o,i)=>{
+      const li=document.createElement('li');li.className='opt meal-opt';li.tabIndex=0;
+      li.innerHTML='<div class="opt-line"><span class="opt-no p-'+k+'">'+(i+1)+'</span><span class="opt-name">'+o[0]+'</span>'+
+        '<span class="opt-score">食べログ '+o[2]+'</span><span class="opt-tag">'+o[1]+'</span></div>'+
+        '<div class="opt-note">'+o[3]+' · '+o[4]+'</div>'+
+        (o[7]&&o[7].length?'<div class="meal-pics">'+o[7].map(u=>'<img src="'+MEAL_IMG+u+'" alt="" loading="lazy" onerror="this.remove()">').join('')+'</div>':'')+
+        '<div class="stop-foot"><a class="mapbtn" href="'+o[5]+'" target="_blank" rel="noopener">食べログ ↗</a>'+
+        '<a class="mapbtn" href="'+gmap(o[0])+'" target="_blank" rel="noopener">Google 地圖 ↗</a></div>';
+      li.querySelectorAll('a').forEach(a=>a.addEventListener('click',e=>e.stopPropagation()));
+      const go=()=>{const M=gm._map;if(!M||!o[6])return;
+        const j=M.pts.findIndex(p=>p.label===o[0]);if(j<0)return;
+        focusOn(gm,M.pts[j],M.markers[j],true);gm.scrollIntoView({behavior:'smooth',block:'nearest'});};
+      li.addEventListener('click',go);
+      li.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});
+      ul.appendChild(li);
+    });
+    if(pts.length)mountMap(gm,pts);else gm.remove();
+  }
 }
 
 function render(){
@@ -392,9 +447,10 @@ function render(){
   DAYS.forEach(d=>{
     const el=document.createElement('div');
     el.className='day tl'+(d[4]?' hot':'');
-    el.innerHTML='<div class="day-head"><span class="day-d">'+d[0]+' '+d[1]+'</span><span class="day-t">'+d[2]+'</span></div><ul class="day-tl"></ul>';
+    el.innerHTML='<div class="day-head"><span class="day-d">'+d[0]+' '+d[1]+'</span><span class="day-t">'+d[2]+'</span><span class="day-btns"></span></div><ul class="day-tl"></ul>';
     const ul=el.querySelector('.day-tl');
     dayMapToggle(el,d[0],el.querySelector('.day-head'),ul);
+    dayMealToggle(el,d[0],el.querySelector('.day-head'),ul);
     d[3].forEach(it=>{
       const li=document.createElement('li');
       if(it[2])li.className='key';
