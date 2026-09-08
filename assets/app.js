@@ -36,7 +36,7 @@ function stopEl(d,id,no){
   const time=d[0],name=d[1],brand=d[2],note=d[3],cid=d[4],mark=d[5];
   const li=document.createElement('li');
   li.className='stop'+(mark?' '+mark:'')+(done.has(id)?' done':'');
-  li.tabIndex=0;
+  li.tabIndex=0;li.dataset.id=id;
   li.innerHTML=
     '<div class="stop-time">'+time+'</div>'+
     '<div class="dex">'+
@@ -59,6 +59,9 @@ function stopEl(d,id,no){
 
 // ── 整日路線：Google Maps 多點路線連結 ──
 // 一段最多 SEG_MAX 點（App 上限 9 個中途點＋起終點）。超過就切段，段與段首尾共用一點，路線不斷
+// 按鈕 leading icon：PokeAPI 道具 sprite，載不到就退回 emoji（同底部分頁作法）
+const ITEM=n=>'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/'+n+'.png';
+const icon=(n,fb)=>'<span class="ic-s"><img src="'+ITEM(n)+'" alt="" loading="lazy" onerror="this.parentNode.textContent=\''+fb+'\'"></span>';
 const SEG_MAX=10;
 function dirUrl(pts,mode){
   const enc=p=>encodeURIComponent(p[1]);
@@ -108,7 +111,7 @@ function daySegments(date){
 function routesEl(segs){
   const div=document.createElement('div');div.className='routes';
   if(!segs.length)return div;
-  div.innerHTML=segs.map(s=>'<a class="mapbtn rt" href="'+dirUrl(s.pts,s.mode)+'" target="_blank" rel="noopener">🗺 '+s.label+'</a>').join('');
+  div.innerHTML=segs.map(s=>'<a class="mapbtn rt" href="'+dirUrl(s.pts,s.mode)+'" target="_blank" rel="noopener">'+icon('town-map','🗺')+s.label+'</a>').join('');
   const named=segs.filter(s=>s.names);
   if(named.length){
     const p=document.createElement('div');p.className='rt-pts';
@@ -172,18 +175,54 @@ function mountMap(el,pts){
     lib.then(({Map,Marker})=>{
       const map=new Map(el,{mapId:'DEMO_MAP_ID',gestureHandling:'greedy',mapTypeControl:false,streetViewControl:false,clickableIcons:false});
       const b=new google.maps.LatLngBounds();
+      const card=mapCard(el);
       const markers=pts.map(p=>{
         const [lat,lng]=p.ll.split(',').map(Number);b.extend({lat,lng});
         const m=new Marker({map,position:{lat,lng},content:pinEl(p),title:p.label,zIndex:pinZ(p.state)});
-        m.addEventListener('gmp-click',()=>window.open(p.url||('https://www.google.com/maps/search/?api=1&query='+lat+'%2C'+lng),'_blank','noopener'));
+        m.addEventListener('gmp-click',()=>{card.show(p,m);map.panTo({lat,lng});});
         return m;
       });
+      map.addListener('click',()=>card.hide());
       map.fitBounds(b,36);
-      el._map={map,markers,pts};
+      el._map={map,markers,pts,card};
       if(el._onReady)el._onReady(el._map);
     }).catch(err=>{el.innerHTML='<p class="map-err">'+err.message+'</p>';});
   };
   el._init=init;init();
+}
+// 地圖底部資訊卡：點圖釘顯示，點地圖空白處或 × 關閉
+function mapCard(el){
+  const box=document.createElement('div');box.className='map-card';box.hidden=true;
+  el.parentNode.insertBefore(box,el.nextSibling);
+  let cur=null,curM=null;
+  const placeUrl=p=>p.url||('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.label));
+  const navUrl=p=>'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(p.ll)+'&travelmode=walking&dir_action=navigate';
+  const api={selId:null};
+  api.refresh=()=>{
+    if(!cur)return;
+    const p=cur,isDone=p.id&&done.has(p.id);
+    box.innerHTML='<div class="mc-head">'+
+      (p.dex?'<img class="mc-spr" src="'+SPRITE(p.dex)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="mc-no">'+p.no+'</span>')+
+      '<div class="mc-txt"><div class="mc-name">'+p.label+'</div>'+
+      (p.time||p.brand?'<div class="mc-sub">'+(p.time||'')+(p.brand?'<span class="pill p-'+p.brand+'">'+p.brand+'</span>':'')+'</div>':'')+
+      '</div><button type="button" class="mc-x" aria-label="關閉">×</button></div>'+
+      (p.note?'<div class="mc-note">'+p.note+'</div>':'')+
+      '<div class="mc-acts">'+
+      '<a class="mapbtn rt" href="'+placeUrl(p)+'" target="_blank" rel="noopener">'+icon('town-map','🗺')+'打開地點</a>'+
+      '<a class="mapbtn rt" href="'+navUrl(p)+'" target="_blank" rel="noopener">'+icon('dowsing-machine','🧭')+'導航</a>'+
+      (p.id?'<button type="button" class="mapbtn rt mt mc-done'+(isDone?' on':'')+'">'+icon('poke-ball','●')+(isDone?'取消完成':'完成')+'</button>':'')+
+      '</div>';
+    box.querySelector('.mc-x').addEventListener('click',api.hide);
+    const dn=box.querySelector('.mc-done');
+    if(dn)dn.addEventListener('click',()=>{const li=document.querySelector('.stop[data-id="'+p.id+'"]');if(li)li.click();api.refresh();});
+  };
+  api.show=(p,m)=>{
+    if(curM)curM.content.classList.remove('sel');
+    cur=p;curM=m;api.selId=p.id||null;m.content.classList.add('sel');
+    api.refresh();box.hidden=false;
+  };
+  api.hide=()=>{if(curM)curM.content.classList.remove('sel');cur=null;curM=null;api.selId=null;box.hidden=true;};
+  return api;
 }
 function pinState(id){
   if(done.has(id))return 'done';
@@ -196,7 +235,7 @@ function runPts(half){
   const pts=ALL.map(([d,id],i)=>{
     const c=COORDS[d[4]];
     if(!c||(half==='pm')!==(i>=cut))return null;
-    return {ll:c,no:String(i+1).padStart(2,'0'),label:d[0]+' '+d[1],brand:d[2],id,half,state:pinState(id),
+    return {ll:c,no:String(i+1).padStart(2,'0'),label:d[1],time:d[0],note:d[3],dex:i+1,brand:d[2],id,half,state:pinState(id),
       url:d[4].indexOf('http')===0?d[4]:'https://maps.google.com/?cid='+d[4]};
   }).filter(Boolean);
   if(half==='am')pts.unshift({ll:HOTEL[1],no:'H',label:HOTEL[0],half,state:'hotel'});
@@ -208,7 +247,8 @@ function refreshRunPins(){
     M.markers.forEach((m,i)=>{
       const p=M.pts[i];if(!p.id)return;
       const s=pinState(p.id);if(s===p.state)return;
-      p.state=s;m.content.className=pinClass(p);m.zIndex=pinZ(s);
+      p.state=s;m.content.className=pinClass(p)+(M.card.selId===p.id?' sel':'');m.zIndex=pinZ(s);
+      if(M.card.selId===p.id)M.card.refresh();
     });
   });
 }
@@ -245,9 +285,9 @@ function dayPts(date){
 function dayMapToggle(card,date,bar,before){
   const pts=date==='9/16'?null:dayPts(date);
   if(pts&&!pts.length)return;
-  const btn=document.createElement('button');btn.type='button';btn.className='mapbtn rt mt';btn.textContent='📍 地圖';
+  const btn=document.createElement('button');btn.type='button';btn.className='mapbtn rt mt';btn.innerHTML=icon('poke-radar','📍')+'地圖';
   bar.insertBefore(btn,bar.firstChild);
-  const wrap=document.createElement('div');wrap.className='day-map';wrap.hidden=true;card.insertBefore(wrap,before);
+  const wrap=document.createElement('div');wrap.className='day-map map-box';wrap.hidden=true;card.insertBefore(wrap,before);
   btn.addEventListener('click',e=>{
     e.stopPropagation();
     wrap.hidden=!wrap.hidden;btn.classList.toggle('on',!wrap.hidden);
