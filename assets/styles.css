@@ -192,3 +192,26 @@ footer{padding:2.2rem 1rem 1rem;color:var(--dim);font-family:var(--mono);font-si
 footer a{color:var(--indigo)}
 :focus-visible{outline:2px solid var(--indigo);outline-offset:3px;border-radius:6px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Google Maps 區塊 */
+.gmap{height:min(46vh,340px);border-radius:12px;background:var(--line-soft);overflow:hidden}
+.gmap.nokey{display:flex;align-items:center;justify-content:center;padding:1rem;box-sizing:border-box;height:auto;min-height:9rem}
+.keyform{width:100%;max-width:26rem;font-size:.8rem;color:var(--mid)}
+.keyform p{margin:0 0 .6rem;line-height:1.55}
+.keyform input{width:100%;box-sizing:border-box;font-family:var(--mono);font-size:.85rem;padding:.55rem .7rem;border:1px solid var(--line);border-radius:8px;background:var(--card);margin-bottom:.45rem}
+.keyform button{font-family:var(--round);font-weight:700;font-size:.85rem;padding:.55rem 1rem;border:0;border-radius:8px;background:var(--indigo);color:#fff;width:100%}
+.map-err{font-size:.8rem;color:var(--red);padding:1rem;margin:0}
+.chips{display:flex;gap:.4rem;margin:0 0 .5rem}
+.chip{font-family:var(--mono);font-size:.66rem;letter-spacing:.05em;padding:.32rem .7rem;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--mid);font-weight:600}
+.chip.on{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.map-foot{margin:.5rem 0 0;font-size:.7rem;color:var(--dim)}
+.linkbtn{background:none;border:0;padding:0;color:var(--dim);text-decoration:underline;font-size:inherit;cursor:pointer}
+.day-map{margin:0 0 .6rem}
+.day-map .gmap{height:min(40vh,300px)}
+.mapbtn.rt.mt{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.mapbtn.rt.mt.on{background:var(--red);border-color:var(--red)}
+.pin{width:26px;height:26px;border-radius:50%;background:var(--card);border:2.5px solid var(--indigo);color:var(--ink);font-family:var(--mono);font-size:.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.35);transform:translateY(13px);box-sizing:border-box}
+.pin.p-lawson{background:var(--card);border-color:var(--lawson)} .pin.p-seven{background:var(--card);border-color:var(--seven)} .pin.p-famima{background:var(--card);border-color:var(--famima)} .pin.p-ministop{background:var(--card);border-color:var(--ministop)} .pin.p-newdays{background:var(--card);border-color:var(--newdays)} .pin.p-donki{background:var(--card);border-color:#D81E28} .pin.p-kaden{background:var(--card);border-color:#3A6EA5} .pin.p-kadoshop{background:var(--card);border-color:#7B4EA8} .pin.p-toy{background:var(--card);border-color:#E0820C}
+.pin.hotel{background:var(--indigo);border-color:var(--indigo);color:#fff;border-radius:7px}
+.pin.done{background:#E6E9EF;border-color:#B8BFCC;color:#9AA3B5;box-shadow:none}
+.pin.next{background:var(--red);border-color:var(--red);color:#fff;width:32px;height:32px;font-size:.8rem;transform:translateY(16px)}

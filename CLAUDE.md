@@ -37,6 +37,19 @@ sw.js               # Service Worker：同源網路優先（資料保鮮）、�
 - 長程段（成田、日光）用 `driving` 只是為了讓 Google 願意畫線並依序標記，實際搭電車。
 - 解析座標用的 script 與原始輸出在 `notes/`。
 
+### 內嵌 Google 地圖（Maps JavaScript API）
+
+路跑頁最上方一張（上午／下午切換，圖釘＝圖鑑編號，灰＝已勾選、紅＝下一站），
+行程頁每張日卡「📍 地圖」展開一張（第一次展開才建立）。
+- **API key 不在 repo 裡。** 使用者在 app 的表單貼一次，存 `localStorage` 的 `tokyo2026:gmapkey`。
+  沒 key 就顯示表單；key 無效時 `gm_authFailure` 會把表單帶錯誤訊息叫回來。
+  「更換／清除 key」在路跑頁地圖區塊下方。key 本身應在 Cloud Console 限制網域
+  `loveuph114.github.io` 與 `localhost:8000`。
+- 圖釘用 `AdvancedMarkerElement`＋`mapId:'DEMO_MAP_ID'`（Google 的預設樣式 id，不用另建），
+  content 是自製的 `.pin` div，狀態變化只改 className，不換元素。
+- `sw.js` 對 `maps.*` 與 `*.google.com` 主機直接放行，不進 SW 快取（腳本版本會變、圖磚量大）。
+- Google Maps 在背景分頁不會初始化，用瀏覽器面板測試時要把分頁切到前景。
+
 ### 資料格式
 
 ```js

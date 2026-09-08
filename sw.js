@@ -1,7 +1,7 @@
 // 快取策略：
 // - 同源（頁面／stops.js／app.js）：網路優先，斷線才退回快取 → 資料永遠是最新的
 // - 跨源（sprite／字體／PokeAPI）：先吃快取、背景更新 → 騎車時圖片秒開
-const VER = 'tokyo2026-v2';
+const VER = 'tokyo2026-v3';
 const CORE = [
   './',
   'index.html',
@@ -26,7 +26,10 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  const sameOrigin = new URL(e.request.url).origin === location.origin;
+  const url = new URL(e.request.url);
+  // Google Maps 的腳本與圖磚不經 SW：腳本版本會變、圖磚量大，交給瀏覽器自己的快取
+  if (/^maps\./.test(url.hostname) || /(^|\.)google\.com$/.test(url.hostname)) return;
+  const sameOrigin = url.origin === location.origin;
 
   if (sameOrigin || e.request.mode === 'navigate') {
     // 網路優先：成功就更新快取，失敗（斷線）退回快取
