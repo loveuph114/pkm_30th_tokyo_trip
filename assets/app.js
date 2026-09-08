@@ -59,70 +59,9 @@ function stopEl(d,id,no){
   return li;
 }
 
-// ── 整日路線：Google Maps 多點路線連結 ──
-// 一段最多 SEG_MAX 點（App 上限 9 個中途點＋起終點）。超過就切段，段與段首尾共用一點，路線不斷
 // 按鈕 leading icon：PokeAPI 道具 sprite，載不到就退回 emoji（同底部分頁作法）
 const ITEM=n=>'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/'+n+'.png';
 const icon=(n,fb)=>'<span class="ic-s"><img src="'+ITEM(n)+'" alt="" loading="lazy" onerror="this.parentNode.textContent=\''+fb+'\'"></span>';
-const SEG_MAX=10;
-function dirUrl(pts,mode){
-  const enc=p=>encodeURIComponent(p[1]);
-  let u='https://www.google.com/maps/dir/?api=1&origin='+enc(pts[0])+'&destination='+enc(pts[pts.length-1]);
-  if(pts.length>2)u+='&waypoints='+pts.slice(1,-1).map(enc).join('%7C');
-  return u+'&travelmode='+mode;
-}
-function chunk(pts){
-  const n=pts.length;if(n<=SEG_MAX)return [pts];
-  const k=Math.ceil((n-1)/(SEG_MAX-1)),out=[];
-  for(let i=0;i<k;i++){const a=Math.round(i*(n-1)/k),b=Math.round((i+1)*(n-1)/k);out.push(pts.slice(a,b+1));}
-  return out;
-}
-// 站點 → 路線點 [名稱, 座標, 圖鑑編號]；沒座標的站略過（console 警告，不擋畫面）
-function stopPts(list,offset){
-  return list.map((d,i)=>{
-    const c=COORDS[d[4]];
-    if(!c)console.warn('COORDS 缺少座標：',d[1]);
-    return c?[d[1],c,offset+i+1]:null;
-  }).filter(Boolean);
-}
-const NO=n=>String(n).padStart(2,'0');
-function segLabel(prefix,idx,pts){
-  const a=pts[0][2],b=pts[pts.length-1][2];
-  return prefix+' '+'①②③④⑤⑥⑦⑧⑨'[idx]+' '+(a?NO(a):'飯店')+'→'+NO(b);
-}
-// 9/16 分上下半天：上午＝飯店→P1、P2（各自切段）；下午＝P3 錦糸町、P3 秋葉原
-function runSegments(){
-  const p1=[[HOTEL[0],HOTEL[1],0]].concat(stopPts(P1,0));
-  const p2=stopPts(P2,P1.length);
-  const p3=stopPts(P3,P1.length+P2.length);
-  const c1=chunk(p1),c2=chunk(p2);
-  const am=c1.concat(c2).map((pts,i)=>({label:segLabel('上午',i,pts),mode:'walking',pts}));
-  const pm=[p3.slice(0,P3_SPLIT),p3.slice(P3_SPLIT)].filter(x=>x.length>1)
-    .map((pts,i)=>({label:'下午 '+'①②'[i]+' '+(i===0?'錦糸町':'秋葉原'),mode:'walking',pts}));
-  return {am,pm,p1:am.slice(0,c1.length)};
-}
-function daySegments(date){
-  if(date==='9/16'){const r=runSegments();return r.am.concat(r.pm);}
-  const out=[];
-  (ROUTES[date]||[]).forEach(seg=>{
-    if(seg[2]==='P1'){runSegments().p1.forEach((s,i)=>out.push({label:seg[0]+' '+'①②③'[i],mode:seg[1],pts:s.pts,quiet:true}));return;}
-    chunk(seg[2]).forEach((pts,i,arr)=>out.push({label:seg[0]+(arr.length>1?' '+'①②③④'[i]:''),mode:seg[1],pts,names:true}));
-  });
-  return out;
-}
-function routesEl(segs){
-  const div=document.createElement('div');div.className='routes';
-  if(!segs.length)return div;
-  div.innerHTML=segs.map(s=>'<a class="mapbtn rt" href="'+dirUrl(s.pts,s.mode)+'" target="_blank" rel="noopener">'+icon('town-map','🗺')+s.label+'</a>').join('');
-  const named=segs.filter(s=>s.names);
-  if(named.length){
-    const p=document.createElement('div');p.className='rt-pts';
-    p.textContent=named.map(s=>s.pts.map(x=>x[0]).join(' → ')).join('　／　');
-    div.appendChild(p);
-  }
-  div.querySelectorAll('a').forEach(a=>a.addEventListener('click',e=>e.stopPropagation()));
-  return div;
-}
 
 // ── Google Maps（key 由使用者在 app 裡貼一次，存 localStorage，不進 repo）──
 // 圖釘用 AdvancedMarkerElement + DEMO_MAP_ID（Google 提供的預設樣式 map id，不用另建）
@@ -383,10 +322,7 @@ function buildRunMap(wrap){
 // 9/16 以外的日子：ROUTES 的點依序編 1、2、3…，同一地點出現兩次只標一次
 function dayPts(date){
   const pts=[],seen={};
-  (ROUTES[date]||[]).forEach(seg=>{
-    if(seg[2]==='P1')return;
-    seg[2].forEach(p=>{if(seen[p[1]])return;seen[p[1]]=1;pts.push({ll:p[1],no:String(pts.length+1),label:p[0]});});
-  });
+  (ROUTES[date]||[]).forEach(p=>{if(seen[p[1]])return;seen[p[1]]=1;pts.push({ll:p[1],no:String(pts.length+1),label:p[0]});});
   return pts;
 }
 // 行程日卡：「📍 地圖」按鈕展開地圖，第一次展開才建立（省載入次數）
@@ -415,10 +351,6 @@ function render(){
   buildRunMap(document.getElementById('runmap-wrap'));
   document.getElementById('mapkey').addEventListener('click',()=>{
     if(confirm('清除這支手機上存的 Google Maps key？'))clearKey();
-  });
-  const rs=runSegments();
-  [[rs.p1,'routes1'],[rs.am.slice(rs.p1.length),'routes2'],[rs.pm,'routes3']].forEach(([segs,id])=>{
-    const h=document.getElementById(id);h.replaceWith(routesEl(segs));
   });
 
   const ph=document.getElementById('phrases');
@@ -462,7 +394,7 @@ function render(){
     el.className='day tl'+(d[4]?' hot':'');
     el.innerHTML='<div class="day-head"><span class="day-d">'+d[0]+' '+d[1]+'</span><span class="day-t">'+d[2]+'</span></div><ul class="day-tl"></ul>';
     const ul=el.querySelector('.day-tl');
-    const rb=routesEl(daySegments(d[0]));el.insertBefore(rb,ul);
+    const rb=document.createElement('div');rb.className='routes';el.insertBefore(rb,ul);
     dayMapToggle(el,d[0],rb,ul);
     d[3].forEach(it=>{
       const li=document.createElement('li');
