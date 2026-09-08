@@ -252,7 +252,10 @@ function mountMap(el,pts){
     if(!lib){keyForm(el);return;}
     el.classList.remove('nokey');el.textContent='';
     lib.then(({Map,Marker})=>{
-      const map=new Map(el,{mapId:'DEMO_MAP_ID',gestureHandling:'greedy',mapTypeControl:false,streetViewControl:false,clickableIcons:false});
+      // 全螢幕改由我們做：把 .map-inner 全螢幕化，用 safe-area 當內距，地圖與所有按鈕整體往內縮
+      const ownFs=!!document.fullscreenEnabled;
+      const map=new Map(el,{mapId:'DEMO_MAP_ID',gestureHandling:'greedy',mapTypeControl:false,streetViewControl:false,clickableIcons:false,fullscreenControl:!ownFs});
+      if(ownFs)map.controls[google.maps.ControlPosition.RIGHT_TOP].push(fsButton(el.parentNode));
       const b=new google.maps.LatLngBounds();
       // 覆蓋層全部走 map.controls 放進地圖內部，全螢幕時才看得到
       const card=mapCard(el);
@@ -310,6 +313,19 @@ function mapCard(el){
   api.hide=()=>{if(curM)curM.content.classList.remove('sel');cur=null;curM=null;api.selId=null;box.hidden=true;};
   return api;
 }
+// 自製全螢幕鈕：全螢幕化 .map-inner（不是地圖本身），CSS 用 env(safe-area-inset-*) 讓內容避開系統列
+function fsButton(inner){
+  const b=document.createElement('button');b.type='button';b.className='mctl fs-btn';b.textContent='⛶ 全螢幕';
+  b.addEventListener('click',()=>{
+    if(document.fullscreenElement)document.exitFullscreen();
+    else inner.requestFullscreen().catch(()=>toast('這個瀏覽器不支援全螢幕'));
+  });
+  return b;
+}
+document.addEventListener('fullscreenchange',()=>{
+  const on=!!document.fullscreenElement;
+  document.querySelectorAll('.fs-btn').forEach(b=>{b.textContent=on?'✕ 退出':'⛶ 全螢幕';b.classList.toggle('on',on);});
+});
 function pinState(id){
   if(done.has(id))return 'done';
   const nxt=ALL.find(x=>!done.has(x[1]));

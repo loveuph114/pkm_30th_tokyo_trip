@@ -48,7 +48,9 @@ sw.js               # Service Worker：同源網路優先（資料保鮮）、�
 - 圖釘用 `AdvancedMarkerElement`＋`mapId:'DEMO_MAP_ID'`（Google 的預設樣式 id，不用另建），
   content 是自製的 `.pin` div，狀態變化只改 className，不換元素。
 - 地圖上的覆蓋層（上午／下午切換、「我」「下一站」、資訊卡）全部走 `map.controls` 放進地圖內部，
-  不要用兄弟節點加 absolute 定位：全螢幕時只會顯示地圖元素的子樹，外面的東西會消失。
+  不要用兄弟節點加 absolute 定位：全螢幕時只會顯示全螢幕元素的子樹，外面的東西會消失。
+- 全螢幕是自製的（Google 的 fullscreenControl 關掉）：全螢幕化 `.map-inner` 而非地圖本身，
+  CSS 用 `env(safe-area-inset-*)` 當內距，讓地圖與所有按鈕避開狀態列／導覽列。
 - `sw.js` 對 `maps.*` 與 `*.google.com` 主機直接放行，不進 SW 快取（腳本版本會變、圖磚量大）。
 - Google Maps 在背景分頁不會初始化，用瀏覽器面板測試時要把分頁切到前景。
 
