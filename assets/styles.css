@@ -144,6 +144,7 @@ section{padding:2.2rem 1rem 0}
 .day-b{font-size:.79rem;color:var(--mid);line-height:1.55}
 .day.tl{display:block}
 .day-head{display:flex;align-items:baseline;gap:.65rem;margin-bottom:.3rem}
+.day-head .mt{margin-left:auto;align-self:center;flex-shrink:0}
 .day-head .day-d{padding-top:0;white-space:nowrap}
 .day-head .day-t{margin-bottom:0}
 .day-tl{list-style:none;margin:.1rem 0 0;padding:0}

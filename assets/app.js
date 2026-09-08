@@ -193,7 +193,7 @@ function mountMap(el,pts){
     lib.then(({Map,Marker})=>{
       // 全螢幕改由我們做：把 .map-inner 全螢幕化，用 safe-area 當內距，地圖與所有按鈕整體往內縮
       const ownFs=!!document.fullscreenEnabled;
-      const map=new Map(el,{mapId:'DEMO_MAP_ID',gestureHandling:'greedy',mapTypeControl:false,streetViewControl:false,clickableIcons:false,fullscreenControl:!ownFs});
+      const map=new Map(el,{mapId:'DEMO_MAP_ID',gestureHandling:'greedy',mapTypeControl:false,streetViewControl:false,zoomControl:false,clickableIcons:false,fullscreenControl:!ownFs});
       if(ownFs)map.controls[google.maps.ControlPosition.RIGHT_TOP].push(fsButton(el.parentNode));
       const b=new google.maps.LatLngBounds();
       // 覆蓋層全部走 map.controls 放進地圖內部，全螢幕時才看得到
@@ -325,12 +325,12 @@ function dayPts(date){
   (ROUTES[date]||[]).forEach(p=>{if(seen[p[1]])return;seen[p[1]]=1;pts.push({ll:p[1],no:String(pts.length+1),label:p[0]});});
   return pts;
 }
-// 行程日卡：「📍 地圖」按鈕展開地圖，第一次展開才建立（省載入次數）
-function dayMapToggle(card,date,bar,before){
+// 行程日卡：標題列右側的「地圖」按鈕展開地圖，第一次展開才建立（省載入次數）
+function dayMapToggle(card,date,head,before){
   const pts=date==='9/16'?null:dayPts(date);
   if(pts&&!pts.length)return;
   const btn=document.createElement('button');btn.type='button';btn.className='mapbtn rt mt';btn.innerHTML=icon('poke-radar','📍')+'地圖';
-  bar.insertBefore(btn,bar.firstChild);
+  head.appendChild(btn);
   const wrap=document.createElement('div');wrap.className='day-map map-box';wrap.hidden=true;card.insertBefore(wrap,before);
   btn.addEventListener('click',e=>{
     e.stopPropagation();
@@ -394,8 +394,7 @@ function render(){
     el.className='day tl'+(d[4]?' hot':'');
     el.innerHTML='<div class="day-head"><span class="day-d">'+d[0]+' '+d[1]+'</span><span class="day-t">'+d[2]+'</span></div><ul class="day-tl"></ul>';
     const ul=el.querySelector('.day-tl');
-    const rb=document.createElement('div');rb.className='routes';el.insertBefore(rb,ul);
-    dayMapToggle(el,d[0],rb,ul);
+    dayMapToggle(el,d[0],el.querySelector('.day-head'),ul);
     d[3].forEach(it=>{
       const li=document.createElement('li');
       if(it[2])li.className='key';
