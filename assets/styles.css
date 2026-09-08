@@ -245,8 +245,11 @@ footer a{color:var(--indigo)}
 #toast{position:fixed;left:50%;bottom:calc(4.6rem + env(safe-area-inset-bottom));transform:translate(-50%,8px);background:rgba(20,28,48,.92);color:#fff;font-size:.8rem;padding:.55rem .9rem;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:88vw}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 
-/* 自製全螢幕：外層吃 safe-area 內距，地圖與所有按鈕整體避開狀態列／導覽列 */
-.map-inner:fullscreen{background:#000;box-sizing:border-box;
-  padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+/* 自製全螢幕：地圖鋪滿整個螢幕（含狀態列後面），只把 UI 元件用 safe-area 往內推 */
+.map-inner:fullscreen{background:#000}
 .map-inner:fullscreen .gmap{height:100%;border-radius:0}
 .fs-btn{margin:8px 8px 0 0}
+.map-inner:fullscreen .chips{margin-top:calc(8px + env(safe-area-inset-top,0px))}
+.map-inner:fullscreen .map-ctl{margin-top:calc(8px + env(safe-area-inset-top,0px));margin-left:calc(8px + env(safe-area-inset-left,0px))}
+.map-inner:fullscreen .fs-btn{margin-top:calc(8px + env(safe-area-inset-top,0px));margin-right:calc(8px + env(safe-area-inset-right,0px))}
+.map-inner:fullscreen .map-card{margin-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
