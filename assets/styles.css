@@ -145,12 +145,16 @@ section{padding:2.2rem 1rem 0}
 .day.tl{display:block}
 .day-head{display:flex;align-items:baseline;gap:.65rem;margin-bottom:.3rem}
 .day-head .mt{margin-left:auto;align-self:center;flex-shrink:0}
-/* 標題列按鈕組（地圖／午餐／晚餐）：窄螢幕空間不夠時整組換到下一行，不把標題擠成直排 */
-.day-head{flex-wrap:wrap}
-.day-head .day-t{flex:1 1 9rem;min-width:9rem}
-.day-btns{display:flex;gap:.3rem;margin-left:auto;flex-shrink:0;align-self:center}
-.day-btns .mt{margin-left:0}
+/* 標題列改 grid：日期｜標題；按鈕組固定在標題下方一行、對齊標題起點（手機不會忽寬忽窄地換行）。
+   寬螢幕（≥560px）才把按鈕組移回標題同一行右側 */
+.day-head{display:grid;grid-template-columns:auto 1fr;column-gap:.65rem;align-items:baseline}
+.day-btns{grid-column:2;display:flex;gap:.3rem;margin:-.1rem 0 .55rem;flex-wrap:wrap}
+.day-btns .mt{margin-left:0;align-self:auto}
 .day-btns:empty{display:none}
+@media (min-width:560px){
+  .day-head{grid-template-columns:auto 1fr auto;align-items:center}
+  .day-btns{grid-column:3;grid-row:1;margin-top:0}
+}
 .day-head .day-d{padding-top:0;white-space:nowrap}
 .day-head .day-t{margin-bottom:0}
 .day-tl{list-style:none;margin:.1rem 0 0;padding:0}
@@ -182,12 +186,10 @@ section{padding:2.2rem 1rem 0}
 /* 日卡「午餐」「晚餐」面板：地圖（圖釘＝排名）＋名單，名單列沿用 .opt 樣式 */
 :root{--lunch:#E0820C;--dinner:#7B4EA8}
 .day-head .mt+.mt{margin-left:.3rem}
-.mapbtn.rt.mt.meal{background:var(--bg);color:var(--indigo)}
 .mapbtn.rt.mt.meal.lunch{color:var(--lunch);border-color:var(--lunch)}
 .mapbtn.rt.mt.meal.dinner{color:var(--dinner);border-color:var(--dinner)}
-.mapbtn.rt.mt.meal.on{color:#fff}
-.mapbtn.rt.mt.meal.lunch.on{background:var(--lunch)}
-.mapbtn.rt.mt.meal.dinner.on{background:var(--dinner)}
+.mapbtn.rt.mt.meal.lunch.on{background:var(--lunch);color:#fff}
+.mapbtn.rt.mt.meal.dinner.on{background:var(--dinner);color:#fff}
 .day-meals{margin:0 0 .6rem}
 .day-meals .gmap{height:min(40vh,300px)}
 .meal-note{margin:.35rem 0 .1rem;font-size:.7rem;color:var(--dim);line-height:1.5}
@@ -240,8 +242,9 @@ footer a{color:var(--indigo)}
 .linkbtn{background:none;border:0;padding:0;color:var(--dim);text-decoration:underline;font-size:inherit;cursor:pointer}
 .day-map{margin:0 0 .6rem}
 .day-map .gmap{height:min(40vh,300px)}
-.mapbtn.rt.mt{background:var(--indigo);color:#fff;border-color:var(--indigo)}
-.mapbtn.rt.mt.on{background:var(--red);border-color:var(--red)}
+/* 日卡標題列三顆鈕（地圖／午餐／晚餐）統一：外框色＝各自主色，開啟時填滿 */
+.mapbtn.rt.mt{background:var(--bg);color:var(--indigo);border-color:var(--indigo)}
+.mapbtn.rt.mt.on{background:var(--indigo);border-color:var(--indigo);color:#fff}
 .pin{width:26px;height:26px;border-radius:50%;background:var(--card);border:2.5px solid var(--indigo);color:var(--ink);font-family:var(--mono);font-size:.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.35);transform:translateY(13px);box-sizing:border-box}
 .pin.p-lawson{background:var(--card);border-color:var(--lawson)} .pin.p-seven{background:var(--card);border-color:var(--seven)} .pin.p-famima{background:var(--card);border-color:var(--famima)} .pin.p-ministop{background:var(--card);border-color:var(--ministop)} .pin.p-newdays{background:var(--card);border-color:var(--newdays)} .pin.p-donki{background:var(--card);border-color:#D81E28} .pin.p-kaden{background:var(--card);border-color:#3A6EA5} .pin.p-kadoshop{background:var(--card);border-color:#7B4EA8} .pin.p-toy{background:var(--card);border-color:#E0820C}
 .pin.hotel{background:var(--indigo);border-color:var(--indigo);color:#fff;border-radius:7px}
@@ -277,12 +280,13 @@ footer a{color:var(--indigo)}
 #toast{position:fixed;left:50%;bottom:calc(4.6rem + env(safe-area-inset-bottom));transform:translate(-50%,8px);background:rgba(20,28,48,.92);color:#fff;font-size:.8rem;padding:.55rem .9rem;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:88vw}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 
-/* 自製全螢幕：地圖鋪滿整個螢幕（含狀態列後面），只把 UI 元件用 safe-area 往內推 */
-.map-inner:fullscreen{background:#000}
-.map-inner:fullscreen .gmap{height:100%;border-radius:0}
+/* 自製全螢幕（CSS 鋪滿視窗，不用 Fullscreen API）：地圖鋪滿整個螢幕（含狀態列後面），只把 UI 元件用 safe-area 往內推 */
+.map-inner.fs{position:fixed;inset:0;z-index:1000;background:#000}
+body.fs-lock{overflow:hidden}
+.map-inner.fs .gmap{height:100%;border-radius:0}
 .fs-btn{margin:8px 8px 0 0}
-.map-inner:fullscreen .chips{margin-top:calc(8px + env(safe-area-inset-top,0px))}
-.map-inner:fullscreen .map-ctl{margin-top:calc(8px + env(safe-area-inset-top,0px));margin-left:calc(8px + env(safe-area-inset-left,0px))}
-.map-inner:fullscreen .fs-btn{margin-top:calc(8px + env(safe-area-inset-top,0px));margin-right:calc(8px + env(safe-area-inset-right,0px))}
+.map-inner.fs .chips{margin-top:calc(8px + env(safe-area-inset-top,0px))}
+.map-inner.fs .map-ctl{margin-top:calc(8px + env(safe-area-inset-top,0px));margin-left:calc(8px + env(safe-area-inset-left,0px))}
+.map-inner.fs .fs-btn{margin-top:calc(8px + env(safe-area-inset-top,0px));margin-right:calc(8px + env(safe-area-inset-right,0px))}
 /* 底部安全區 Chrome 沒回報（實測為 0），先固定保留 36px 給導覽列（48 太多、24 不夠，實機調出來的） */
-.map-inner:fullscreen .map-card-wrap{padding-bottom:calc(36px + env(safe-area-inset-bottom,0px))}
+.map-inner.fs .map-card-wrap{padding-bottom:calc(36px + env(safe-area-inset-bottom,0px))}

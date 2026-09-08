@@ -191,10 +191,10 @@ function mountMap(el,pts){
     if(!lib){keyForm(el);return;}
     el.classList.remove('nokey');el.textContent='';
     lib.then(({Map,Marker})=>{
-      // 全螢幕改由我們做：把 .map-inner 全螢幕化，用 safe-area 當內距，地圖與所有按鈕整體往內縮
-      const ownFs=!!document.fullscreenEnabled;
-      const map=new Map(el,{mapId:'DEMO_MAP_ID',gestureHandling:'greedy',mapTypeControl:false,streetViewControl:false,zoomControl:false,cameraControl:false,rotateControl:false,clickableIcons:false,fullscreenControl:!ownFs});
-      if(ownFs)map.controls[google.maps.ControlPosition.RIGHT_TOP].push(fsButton(el.parentNode));
+      // 全螢幕改由我們做：.map-inner 加 .fs 用 position:fixed 鋪滿視窗（不用 Fullscreen API），
+      // 切去 Google Maps app 再回來狀態不會掉；UI 元件用 safe-area 當內距往內縮
+      const map=new Map(el,{mapId:'DEMO_MAP_ID',gestureHandling:'greedy',mapTypeControl:false,streetViewControl:false,zoomControl:false,cameraControl:false,rotateControl:false,clickableIcons:false,fullscreenControl:false});
+      map.controls[google.maps.ControlPosition.RIGHT_TOP].push(fsButton(el.parentNode));
       const b=new google.maps.LatLngBounds();
       // 覆蓋層全部走 map.controls 放進地圖內部，全螢幕時才看得到
       const card=mapCard(el);
@@ -258,19 +258,31 @@ function mapCard(el){
   api.hide=()=>{if(curM)curM.content.classList.remove('sel');cur=null;curM=null;api.selId=null;box.hidden=true;};
   return api;
 }
-// 自製全螢幕鈕：全螢幕化 .map-inner（不是地圖本身），CSS 用 env(safe-area-inset-*) 讓內容避開系統列
+// 自製全螢幕：.map-inner 加 .fs（position:fixed 鋪滿視窗），不用 Fullscreen API——
+// 真全螢幕在切到 Google Maps app 時會被瀏覽器自動退出，回來後沒有點擊事件不准再進去；CSS 狀態則會留著。
+// 進入時 pushState 一筆，讓 Android 返回鍵／手勢是「退出全螢幕」而不是離開頁面。
+function setFs(inner,on){
+  inner.classList.toggle('fs',on);document.body.classList.toggle('fs-lock',on);
+  const b=inner.querySelector('.fs-btn');if(b){b.textContent=on?'✕ 退出':'⛶ 全螢幕';b.classList.toggle('on',on);}
+  const gm=inner.querySelector('.gmap');if(gm&&gm._map&&window.google)google.maps.event.trigger(gm._map.map,'resize');
+}
+function exitFs(){
+  const cur=document.querySelector('.map-inner.fs');if(!cur)return false;
+  setFs(cur,false);return true;
+}
 function fsButton(inner){
   const b=document.createElement('button');b.type='button';b.className='mctl fs-btn';b.textContent='⛶ 全螢幕';
   b.addEventListener('click',()=>{
-    if(document.fullscreenElement)document.exitFullscreen();
-    else inner.requestFullscreen().catch(()=>toast('這個瀏覽器不支援全螢幕'));
+    if(inner.classList.contains('fs')){
+      if(history.state&&history.state.fs)history.back();else exitFs();
+    }else{
+      exitFs();history.pushState({fs:1},'');setFs(inner,true);
+    }
   });
   return b;
 }
-document.addEventListener('fullscreenchange',()=>{
-  const on=!!document.fullscreenElement;
-  document.querySelectorAll('.fs-btn').forEach(b=>{b.textContent=on?'✕ 退出':'⛶ 全螢幕';b.classList.toggle('on',on);});
-});
+window.addEventListener('popstate',()=>{exitFs();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&exitFs()&&history.state&&history.state.fs)history.back();});
 function pinState(id){
   if(done.has(id))return 'done';
   const nxt=ALL.find(x=>!done.has(x[1]));
