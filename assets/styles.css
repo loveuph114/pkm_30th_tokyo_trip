@@ -220,7 +220,8 @@ footer a{color:var(--indigo)}
 /* 地圖資訊卡與 sprite icon */
 .map-box{position:relative}
 .map-inner{position:relative}
-.map-card{margin:0 8px 8px;box-sizing:border-box;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.7rem .8rem;box-shadow:0 6px 20px rgba(20,30,60,.18);font-size:.8rem}
+.map-card-wrap{padding:0 8px 8px}
+.map-card{margin:0;box-sizing:border-box;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.7rem .8rem;box-shadow:0 6px 20px rgba(20,30,60,.18);font-size:.8rem}
 .mc-head{display:flex;align-items:flex-start;gap:.55rem}
 .mc-spr{width:40px;height:40px;image-rendering:pixelated;flex-shrink:0;margin:-.2rem 0 0 -.2rem}
 .mc-no{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--indigo);color:#fff;font-family:var(--mono);font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center}
@@ -252,4 +253,4 @@ footer a{color:var(--indigo)}
 .map-inner:fullscreen .chips{margin-top:calc(8px + env(safe-area-inset-top,0px))}
 .map-inner:fullscreen .map-ctl{margin-top:calc(8px + env(safe-area-inset-top,0px));margin-left:calc(8px + env(safe-area-inset-left,0px))}
 .map-inner:fullscreen .fs-btn{margin-top:calc(8px + env(safe-area-inset-top,0px));margin-right:calc(8px + env(safe-area-inset-right,0px))}
-.map-inner:fullscreen .map-card{margin-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.map-inner:fullscreen .map-card-wrap{padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}

@@ -282,10 +282,12 @@ function mountMap(el,pts){
 const fmtDist=d=>d<950?Math.round(d/10)*10+' m':(d/1000).toFixed(1)+' km';
 function mapCard(el){
   const box=document.createElement('div');box.className='map-card';box.hidden=true;
+  // 外層用內距（不是邊距）推開導覽列：Google 的控制容器量高度時不含子元素的邊距
+  const outer=document.createElement('div');outer.className='map-card-wrap';outer.appendChild(box);
   let cur=null,curM=null;
   const placeUrl=p=>p.url||('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.label));
   const navUrl=p=>'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(p.ll)+'&travelmode=walking&dir_action=navigate';
-  const api={selId:null,box};
+  const api={selId:null,box:outer};
   api.refresh=()=>{
     if(!cur)return;
     const p=cur,isDone=p.id&&done.has(p.id);
