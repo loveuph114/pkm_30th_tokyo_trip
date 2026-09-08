@@ -1,0 +1,224 @@
+[
+ {
+  "phase": "P1",
+  "time": "07:00",
+  "name": "ローソン 内神田三丁目店",
+  "url": "https://maps.google.com/?cid=15483812618047711574"
+ },
+ {
+  "phase": "P1",
+  "time": "07:05",
+  "name": "ローソン 内神田二丁目店",
+  "url": "https://maps.google.com/?cid=2964265197305450579"
+ },
+ {
+  "phase": "P1",
+  "time": "07:11",
+  "name": "ミニストップ 神田錦町店",
+  "url": "https://maps.google.com/?cid=10596900799831626658"
+ },
+ {
+  "phase": "P1",
+  "time": "07:16",
+  "name": "ミニストップ 神田美土代町店",
+  "url": "https://maps.google.com/?cid=13411831127569030969"
+ },
+ {
+  "phase": "P1",
+  "time": "07:24",
+  "name": "セブン-イレブン 神田駅西口ビル店",
+  "url": "https://maps.google.com/?cid=15887937982490487397"
+ },
+ {
+  "phase": "P1",
+  "time": "07:31",
+  "name": "セブン-イレブン 千代田鍛冶町一丁目店",
+  "url": "https://maps.google.com/?cid=12112858406757108663"
+ },
+ {
+  "phase": "P1",
+  "time": "07:41",
+  "name": "ミニストップ 日本橋本石町店",
+  "url": "https://maps.google.com/?cid=13451431193713158792"
+ },
+ {
+  "phase": "P1",
+  "time": "07:48",
+  "name": "セブン-イレブン 日本橋室町三丁目店",
+  "url": "https://maps.google.com/?cid=4514176031624890494"
+ },
+ {
+  "phase": "P1",
+  "time": "07:55",
+  "name": "ローソン 日本橋本町二丁目店",
+  "url": "https://maps.google.com/?cid=7732259437180092659"
+ },
+ {
+  "phase": "P1",
+  "time": "08:03",
+  "name": "セブン-イレブン 日本橋本町一丁目店",
+  "url": "https://maps.google.com/?cid=10931067219537664511"
+ },
+ {
+  "phase": "P1",
+  "time": "08:15",
+  "name": "セブン-イレブン 千代田岩本町一丁目店",
+  "url": "https://maps.google.com/?cid=13248107099025216978"
+ },
+ {
+  "phase": "P1",
+  "time": "08:22",
+  "name": "セブン-イレブン 神田岩本町店",
+  "url": "https://maps.google.com/?cid=5115121867071561404"
+ },
+ {
+  "phase": "P1",
+  "time": "08:29",
+  "name": "セブン-イレブン 神田須田町一丁目店",
+  "url": "https://maps.google.com/?cid=6318183239264271771"
+ },
+ {
+  "phase": "P1",
+  "time": "08:37",
+  "name": "NewDays メッツ秋葉原",
+  "url": "https://maps.google.com/?cid=11450483818639692015"
+ },
+ {
+  "phase": "P2",
+  "time": "09:55",
+  "name": "ファミリーマート 神田須田町二丁目店",
+  "url": "https://maps.google.com/?cid=8691715109874593670"
+ },
+ {
+  "phase": "P2",
+  "time": "10:08",
+  "name": "ファミリーマート 岩本町一丁目店",
+  "url": "https://maps.google.com/?cid=882459833544538222"
+ },
+ {
+  "phase": "P2",
+  "time": "10:20",
+  "name": "ファミリーマート 浅草橋四丁目店",
+  "url": "https://maps.google.com/?cid=16126342921409783767"
+ },
+ {
+  "phase": "P2",
+  "time": "10:28",
+  "name": "ファミリーマート 浅草橋一丁目店（西口）",
+  "url": "https://maps.google.com/?cid=854432722776116679"
+ },
+ {
+  "phase": "P2",
+  "time": "10:35",
+  "name": "ファミリーマート 浅草橋二丁目店",
+  "url": "https://maps.google.com/?cid=11768595969839761035"
+ },
+ {
+  "phase": "P2",
+  "time": "10:44",
+  "name": "ファミリーマート 浅草橋一丁目店（山上ビル）",
+  "url": "https://maps.google.com/?cid=7334003872318536976"
+ },
+ {
+  "phase": "P2",
+  "time": "10:50",
+  "name": "ファミリーマート 柳橋一丁目店",
+  "url": "https://maps.google.com/?cid=12301152846346095156"
+ },
+ {
+  "phase": "P2",
+  "time": "10:58",
+  "name": "ファミリーマート 浅草橋三丁目店",
+  "url": "https://maps.google.com/?cid=13402416882773204418"
+ },
+ {
+  "phase": "P2",
+  "time": "11:10",
+  "name": "ファミリーマート 台東一丁目店",
+  "url": "https://maps.google.com/?cid=7205155442642051605"
+ },
+ {
+  "phase": "P2",
+  "time": "11:20",
+  "name": "ファミリーマート 東上野一丁目店",
+  "url": "https://maps.google.com/?cid=3341801234397065363"
+ },
+ {
+  "phase": "P2",
+  "time": "11:28",
+  "name": "NewDays 御徒町北口",
+  "url": "https://maps.google.com/?cid=1426651644581139915"
+ },
+ {
+  "phase": "P3",
+  "time": "13:00",
+  "name": "トイザらス 錦糸町店",
+  "url": "https://maps.google.com/?cid=1275685381960979397"
+ },
+ {
+  "phase": "P3",
+  "time": "13:45",
+  "name": "ヨドバシカメラ 錦糸町",
+  "url": "https://maps.google.com/?cid=11981782040064060698"
+ },
+ {
+  "phase": "P3",
+  "time": "14:20",
+  "name": "ドン・キホーテ 錦糸町北口店",
+  "url": "https://maps.google.com/?cid=1168748316009915483"
+ },
+ {
+  "phase": "P3",
+  "time": "14:50",
+  "name": "アニメイト 錦糸町",
+  "url": "https://maps.google.com/?cid=3111345069894782996"
+ },
+ {
+  "phase": "P3",
+  "time": "16:00",
+  "name": "エディオン 秋葉原AKIBA店",
+  "url": "https://maps.google.com/?cid=11208271261249653714"
+ },
+ {
+  "phase": "P3",
+  "time": "16:40",
+  "name": "駿河屋 秋葉原駅前店",
+  "url": "https://www.google.com/maps/place/?q=place_id:ChIJVVWgTR2MGGAR67BiGTvaImI"
+ },
+ {
+  "phase": "P3",
+  "time": "17:10",
+  "name": "ポケ堂／MERO 秋葉原（同棟）",
+  "url": "https://www.google.com/maps/place/?q=place_id:ChIJ98jSKACNGGAR-N-8zGLOYZg"
+ },
+ {
+  "phase": "P3",
+  "time": "17:40",
+  "name": "トレカ大明神 秋葉原",
+  "url": "https://www.google.com/maps/place/?q=place_id:ChIJDwC2zMaNGGARAc6VYbFVXxA"
+ },
+ {
+  "phase": "P3",
+  "time": "18:10",
+  "name": "TCG GATE 秋葉原本店",
+  "url": "https://www.google.com/maps/place/?q=place_id:ChIJsajlOEmNGGARTv_QnuHTuNM"
+ },
+ {
+  "phase": "P3",
+  "time": "18:45",
+  "name": "駿河屋 秋葉原本館",
+  "url": "https://www.google.com/maps/place/?q=place_id:ChIJhTzCxUiNGGARfWRafi-eBys"
+ },
+ {
+  "phase": "P3",
+  "time": "19:20",
+  "name": "ヨドバシカメラ マルチメディアAkiba",
+  "url": "https://www.google.com/maps/place/?q=place_id:ChIJGU_M2aeOGGARdnOLcMYXuXs"
+ },
+ {
+  "phase": "P3",
+  "time": "19:50",
+  "name": "ドン・キホーテ 秋葉原",
+  "url": "https://www.google.com/maps/place/?q=place_id:ChIJ7S15lB2MGGARvsUPQb9by7c"
+ }
+]

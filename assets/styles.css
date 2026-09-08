@@ -79,6 +79,9 @@ section{padding:2.2rem 1rem 0}
 .stop-note{font-size:.78rem;color:var(--mid);line-height:1.5}
 .stop-foot{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;flex-wrap:wrap}
 .pill{font-family:var(--mono);font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;padding:.2rem .48rem;border-radius:5px;color:#fff;font-weight:600}
+.routes{display:flex;flex-wrap:wrap;gap:.35rem;margin:.1rem 0 .55rem}
+.mapbtn.rt{color:var(--indigo);border-color:currentColor;font-weight:600;font-size:.66rem}
+.rt-pts{width:100%;font-size:.7rem;color:var(--dim);line-height:1.5;margin-top:.05rem}
 .mapbtn{font-family:var(--mono);font-size:.64rem;letter-spacing:.05em;padding:.28rem .6rem;border:1px solid var(--line);border-radius:999px;color:var(--mid);text-decoration:none;background:var(--bg)}
 .dex-name{font-family:var(--mono);font-size:.6rem;color:var(--dim);letter-spacing:.06em;text-transform:capitalize}
 .stop.done{background:var(--caught);border-color:#D3E0FA}
