@@ -46,8 +46,10 @@ function stopEl(d,id,no){
     '<div class="stop-note">'+note+'</div>'+
     '<div class="stop-foot"><span class="pill p-'+brand+'">'+brand+'</span>'+
     '<a class="mapbtn" href="'+(cid.indexOf('http')===0?cid:'https://maps.google.com/?cid='+cid)+'" target="_blank" rel="noopener">開地圖 \u2197</a>'+
+    '<button type="button" class="mapbtn locate">'+icon('poke-radar','📍')+'地圖</button>'+
     '<span class="dex-name" data-no="'+no+'"></span></div></div>';
-  li.querySelector('.mapbtn').addEventListener('click',e=>e.stopPropagation());
+  li.querySelector('a.mapbtn').addEventListener('click',e=>e.stopPropagation());
+  li.querySelector('.locate').addEventListener('click',e=>{e.stopPropagation();locateStop(id);});
   const toggle=function(){
     if(done.has(id)){done.delete(id);}else{done.add(id);}
     li.classList.toggle('done');saveDone();updateBar();
@@ -127,6 +129,78 @@ function routesEl(segs){
 const GKEY='tokyo2026:gmapkey';
 let gmLib=null;      // Promise → {Map,Marker}
 const runMaps=[];    // 路跑地圖的 .gmap 元素，勾選站點時同步更新圖釘
+const allMaps=[];    // 所有已建立的地圖（含日卡），定位藍點要畫在每一張
+let geoWatch=null,mePos=null;
+const isRunDay=()=>new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Tokyo'})==='2026-09-16';
+function toast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t);}
+  t.textContent=msg;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600);
+}
+// 兩點距離（公尺），haversine
+function distM(a,b){
+  const R=6371000,r=Math.PI/180,dl=(b.lat-a.lat)*r,dn=(b.lng-a.lng)*r;
+  const h=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dn/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+const llOf=p=>{const [lat,lng]=p.ll.split(',').map(Number);return {lat,lng};};
+// 定位：watchPosition，藍點畫在每張地圖上；cb 只在第一次拿到位置時呼叫
+function startGeo(cb){
+  if(!navigator.geolocation){toast('這台裝置不支援定位');return;}
+  if(geoWatch!==null){if(mePos&&cb)cb();return;}
+  document.querySelectorAll('.me-btn').forEach(b=>b.classList.add('on'));
+  geoWatch=navigator.geolocation.watchPosition(pos=>{
+    mePos={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    allMaps.forEach(el=>{const M=el._map;if(!M)return;
+      if(!M.me){const d=document.createElement('div');d.className='me';M.me=new M.Marker({map:M.map,position:mePos,content:d,zIndex:20,title:'我的位置'});}
+      else M.me.position=mePos;});
+    if(cb){cb();cb=null;}
+  },err=>{toast('定位失敗：'+(err.code===1?'沒有給定位權限':err.message));geoWatch=null;
+    document.querySelectorAll('.me-btn').forEach(b=>b.classList.remove('on'));},
+  {enableHighAccuracy:true,maximumAge:5000,timeout:15000});
+}
+// 下一站：找第一個未勾選的站，切到它所在的半天，取景涵蓋它（有定位時連我一起）
+function nextPt(el){
+  const M=el._map;if(!M)return null;
+  const nxt=ALL.find(x=>!done.has(x[1]));if(!nxt)return null;
+  const i=M.pts.findIndex(p=>p.id===nxt[1]);
+  return i<0?null:{p:M.pts[i],m:M.markers[i]};
+}
+function focusNext(el,openCard){
+  const M=el._map,n=nextPt(el);if(!M||!n)return false;
+  if(el._setHalf)el._setHalf(n.p.half);
+  focusOn(el,n.p,n.m,openCard);return true;
+}
+function focusOn(el,p,m,openCard){
+  const M=el._map,t=llOf(p);
+  if(mePos){const b=new google.maps.LatLngBounds();b.extend(t);b.extend(mePos);M.map.fitBounds(b,70);}
+  else{M.map.panTo(t);if(M.map.getZoom()<16)M.map.setZoom(16);}
+  if(openCard)M.card.show(p,m);
+}
+// 地圖左上角控制鈕：「我」定位、「下一站」聚焦（Google 自己的全螢幕鈕在右上）
+function mapControls(el){
+  const M=el._map,hasRun=M.pts.some(p=>p.id);
+  const ctl=document.createElement('div');ctl.className='map-ctl';
+  ctl.innerHTML='<button type="button" class="mctl me-btn'+(geoWatch!==null?' on':'')+'">◎ 我</button>'+(hasRun?'<button type="button" class="mctl nx-btn">▶ 下一站</button>':'');
+  el.parentNode.insertBefore(ctl,el.nextSibling);
+  ctl.querySelector('.me-btn').addEventListener('click',()=>startGeo(()=>{
+    if(hasRun&&focusNext(el))return;
+    M.map.panTo(mePos);if(M.map.getZoom()<15)M.map.setZoom(15);
+  }));
+  const nx=ctl.querySelector('.nx-btn');
+  if(nx)nx.addEventListener('click',()=>{if(!focusNext(el,true))toast('全部收工，沒有下一站了');});
+}
+// 清單 → 地圖：捲到路跑地圖、切半天、開資訊卡
+function locateStop(id){
+  const sec=document.getElementById('runmap-wrap');
+  sec.scrollIntoView({behavior:'smooth',block:'start'});
+  const el=runMaps[0],M=el&&el._map;
+  if(!M){if(!getKey())toast('先貼上 Google Maps key 才有地圖');return;}
+  const i=M.pts.findIndex(p=>p.id===id);if(i<0)return;
+  if(el._setHalf)el._setHalf(M.pts[i].half);
+  const t=llOf(M.pts[i]);M.map.panTo(t);if(M.map.getZoom()<16)M.map.setZoom(16);
+  M.card.show(M.pts[i],M.markers[i]);
+}
 function getKey(){try{return localStorage.getItem(GKEY)||'';}catch(e){return '';}}
 function loadGmaps(){
   if(gmLib)return gmLib;
@@ -168,6 +242,11 @@ function pinEl(p){
 const pinZ=s=>s==='next'?9:s==='done'?1:5;
 // el：.gmap 容器；pts：[{ll:"lat,lng", no, label, brand?, state?, url?}]
 function mountMap(el,pts){
+  // 覆蓋層（資訊卡、控制鈕）要相對於地圖本身定位，把 .gmap 包進 .map-inner
+  if(!el.parentNode.classList.contains('map-inner')){
+    const inner=document.createElement('div');inner.className='map-inner';
+    el.parentNode.insertBefore(inner,el);inner.appendChild(el);
+  }
   const init=()=>{
     const lib=loadGmaps();
     if(!lib){keyForm(el);return;}
@@ -178,19 +257,24 @@ function mountMap(el,pts){
       const card=mapCard(el);
       const markers=pts.map(p=>{
         const [lat,lng]=p.ll.split(',').map(Number);b.extend({lat,lng});
-        const m=new Marker({map,position:{lat,lng},content:pinEl(p),title:p.label,zIndex:pinZ(p.state)});
-        m.addEventListener('gmp-click',()=>{card.show(p,m);map.panTo({lat,lng});});
+        const m=new Marker({map,position:{lat,lng},content:pinEl(p),title:p.label,zIndex:pinZ(p.state),gmpClickable:true});
+        let last=0;const tap=()=>{const t=Date.now();if(t-last<300)return;last=t;card.show(p,m);map.panTo({lat,lng});};
+        m.addEventListener('gmp-click',tap);
+        m.content.addEventListener('click',e=>{e.stopPropagation();tap();});
         return m;
       });
       map.addListener('click',()=>card.hide());
       map.fitBounds(b,36);
-      el._map={map,markers,pts,card};
+      el._map={map,markers,pts,card,Marker};
+      allMaps.push(el);
+      mapControls(el);
       if(el._onReady)el._onReady(el._map);
     }).catch(err=>{el.innerHTML='<p class="map-err">'+err.message+'</p>';});
   };
   el._init=init;init();
 }
 // 地圖底部資訊卡：點圖釘顯示，點地圖空白處或 × 關閉
+const fmtDist=d=>d<950?Math.round(d/10)*10+' m':(d/1000).toFixed(1)+' km';
 function mapCard(el){
   const box=document.createElement('div');box.className='map-card';box.hidden=true;
   el.parentNode.insertBefore(box,el.nextSibling);
@@ -204,7 +288,8 @@ function mapCard(el){
     box.innerHTML='<div class="mc-head">'+
       (p.dex?'<img class="mc-spr" src="'+SPRITE(p.dex)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="mc-no">'+p.no+'</span>')+
       '<div class="mc-txt"><div class="mc-name">'+p.label+'</div>'+
-      (p.time||p.brand?'<div class="mc-sub">'+(p.time||'')+(p.brand?'<span class="pill p-'+p.brand+'">'+p.brand+'</span>':'')+'</div>':'')+
+      '<div class="mc-sub">'+(p.time||'')+(p.brand?'<span class="pill p-'+p.brand+'">'+p.brand+'</span>':'')+
+      (mePos?'<span class="mc-dist">距你 '+fmtDist(distM(mePos,llOf(p)))+'</span>':'')+'</div>'+
       '</div><button type="button" class="mc-x" aria-label="關閉">×</button></div>'+
       (p.note?'<div class="mc-note">'+p.note+'</div>':'')+
       '<div class="mc-acts">'+
@@ -244,12 +329,14 @@ function runPts(half){
 function refreshRunPins(){
   runMaps.forEach(el=>{
     const M=el._map;if(!M)return;
+    let changed=false;
     M.markers.forEach((m,i)=>{
       const p=M.pts[i];if(!p.id)return;
       const s=pinState(p.id);if(s===p.state)return;
-      p.state=s;m.content.className=pinClass(p)+(M.card.selId===p.id?' sel':'');m.zIndex=pinZ(s);
+      p.state=s;changed=true;m.content.className=pinClass(p)+(M.card.selId===p.id?' sel':'');m.zIndex=pinZ(s);
       if(M.card.selId===p.id)M.card.refresh();
     });
+    if(changed&&isRunDay()&&el===runMaps[0])focusNext(el);
   });
 }
 // wrap：容器，裡面放上午／下午切換與 .gmap。所有圖釘一次建好，切換只是顯示／隱藏＋重新取景
@@ -264,12 +351,10 @@ function buildRunMap(wrap){
     M.markers.forEach((m,i)=>{const on=M.pts[i].half===half;m.map=on?M.map:null;if(on)b.extend(m.position);});
     M.map.fitBounds(b,36);
   };
-  el._onReady=apply;
-  wrap.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
-    half=c.dataset.half;
-    wrap.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===c));
-    apply();
-  }));
+  const setHalf=h=>{if(h===half)return;half=h;wrap.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x.dataset.half===h));apply();};
+  el._setHalf=setHalf;
+  el._onReady=()=>{apply();if(isRunDay()){startGeo(()=>focusNext(el));focusNext(el);}};
+  wrap.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>setHalf(c.dataset.half)));
   mountMap(el,runPts('am').concat(runPts('pm')));
 }
 // 9/16 以外的日子：ROUTES 的點依序編 1、2、3…，同一地點出現兩次只標一次
