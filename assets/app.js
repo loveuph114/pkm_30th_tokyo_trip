@@ -116,27 +116,75 @@ function focusOn(el,p,m,openCard){
   else{M.map.panTo(t);if(M.map.getZoom()<16)M.map.setZoom(16);}
   if(openCard)M.card.show(p,m);
 }
-// 地圖左上角控制鈕：「我」定位、「下一站」聚焦（Google 自己的全螢幕鈕在右上）
+// 地圖下方工具列（放在 .map-inner 裡，全螢幕時貼在螢幕底部）：[前導元件（上午／下午）] 我 · 下一站 · 全螢幕
 function mapControls(el){
-  const M=el._map,hasRun=M.pts.some(p=>p.id);
-  const ctl=document.createElement('div');ctl.className='map-ctl';
-  ctl.innerHTML='<button type="button" class="mctl me-btn'+(geoWatch!==null?' on':'')+'">◎ 我</button>'+(hasRun?'<button type="button" class="mctl nx-btn">▶ 下一站</button>':'');
-  M.map.controls[google.maps.ControlPosition.LEFT_TOP].push(ctl);
-  ctl.querySelector('.me-btn').addEventListener('click',()=>startGeo(()=>{
+  const M=el._map,hasRun=M.pts.some(p=>p.id),inner=el.parentNode;
+  const bar=document.createElement('div');bar.className='map-tools';
+  if(el._lead)bar.appendChild(el._lead);
+  bar.insertAdjacentHTML('beforeend','<button type="button" class="mctl me-btn'+(geoWatch!==null?' on':'')+'">◎ 我</button>'+(hasRun?'<button type="button" class="mctl nx-btn">▶ 下一站</button>':''));
+  bar.appendChild(fsButton(inner));
+  inner.appendChild(bar);
+  bar.querySelector('.me-btn').addEventListener('click',()=>startGeo(()=>{
     if(hasRun&&focusNext(el))return;
     M.map.panTo(mePos);if(M.map.getZoom()<15)M.map.setZoom(15);
   }));
-  const nx=ctl.querySelector('.nx-btn');
-  if(nx)nx.addEventListener('click',()=>{if(!focusNext(el,true))toast('全部收工，沒有下一站了');});
+  const nx=bar.querySelector('.nx-btn');
+  // 下一站：地圖聚焦＋開資訊卡，清單也捲到那一站（捲動期間暫停跟隨，免得沿路每站都 pan 一次）
+  if(nx)nx.addEventListener('click',()=>{
+    const n=nextPt(el);
+    if(!focusNext(el,true)){toast('全部收工，沒有下一站了');return;}
+    if(n&&el===runMaps[0])scrollToStop(n.p.id);
+  });
 }
-// 清單 → 地圖：捲到路跑地圖、切半天、開資訊卡
+// ── 路跑頁：地圖貼頂（.run-sticky）後跟著清單捲動 ──
+const barH=()=>{const b=document.querySelector('#v-run .bar');return b?b.getBoundingClientRect().bottom:0;};
+// sticky 的 top 要等於頂欄高度（含 safe-area），用 ResizeObserver 寫進 CSS 變數
+(()=>{const b=document.querySelector('#v-run .bar');if(!b)return;
+  const set=()=>document.documentElement.style.setProperty('--bar-h',Math.round(b.getBoundingClientRect().height)+'px');
+  set();if(window.ResizeObserver)new ResizeObserver(set).observe(b);})();
+let follHold=null,follTimer=0,follRaf=0;
+// 程式捲動（下一站／地圖鈕）期間暫停跟隨；捲動停下 450ms 後把目標設成目前站（不 pan）
+function holdFollow(id){follHold=id;clearTimeout(follTimer);follTimer=setTimeout(()=>{const x=follHold;follHold=null;if(x)setRunCur(x,false);},450);}
+// 目前站：清單目前露出的第一站，圖釘加 .cur；pan=true 時切半天、收資訊卡、地圖移過去
+function setRunCur(id,pan){
+  const el=runMaps[0],M=el&&el._map;if(!M||el._curId===id)return;
+  const prev=M.pts.findIndex(p=>p.id===el._curId);if(prev>=0)M.markers[prev].content.classList.remove('cur');
+  el._curId=id;
+  const i=M.pts.findIndex(p=>p.id===id);if(i<0)return;
+  M.markers[i].content.classList.add('cur');
+  if(!pan)return;
+  if(el._setHalf)el._setHalf(M.pts[i].half);
+  M.card.hide();const t=llOf(M.pts[i]);M.map.panTo(t);if(M.map.getZoom()<16)M.map.setZoom(16);
+}
+function runFollow(){
+  const el=runMaps[0],M=el&&el._map;if(!M)return;
+  if(!document.getElementById('v-run').classList.contains('on')||document.querySelector('.map-inner.fs'))return;
+  const r=document.getElementById('runmap-wrap').getBoundingClientRect();
+  if(r.top>barH()+1)return;   // 還沒貼頂：清單第一站就在地圖正下方，不用跟
+  let hit=null;
+  for(const li of document.querySelectorAll('#v-run .stop')){const b=li.getBoundingClientRect();if(b.bottom-r.bottom>Math.min(b.height*.5,56)){hit=li;break;}}
+  if(hit)setRunCur(hit.dataset.id,true);
+}
+window.addEventListener('scroll',()=>{
+  if(follHold){holdFollow(follHold);return;}
+  if(follRaf)return;follRaf=requestAnimationFrame(()=>{follRaf=0;runFollow();});
+},{passive:true});
+// 把某站捲到貼頂地圖的正下方
+function scrollToStop(id){
+  const li=document.querySelector('.stop[data-id="'+id+'"]'),wrap=document.getElementById('runmap-wrap');if(!li)return;
+  const y=li.getBoundingClientRect().top+scrollY-(barH()+wrap.getBoundingClientRect().height)-6;
+  holdFollow(id);window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
+}
+// 清單的「地圖」鈕 → 地圖捲到貼頂位置（已貼頂就不動）、切半天、開資訊卡
 function locateStop(id){
-  const sec=document.getElementById('runmap-wrap');
-  sec.scrollIntoView({behavior:'smooth',block:'start'});
   const el=runMaps[0],M=el&&el._map;
   if(!M){if(!getKey())toast('先貼上 Google Maps key 才有地圖');return;}
   const i=M.pts.findIndex(p=>p.id===id);if(i<0)return;
+  const r=document.getElementById('runmap-wrap').getBoundingClientRect(),top=barH();
+  holdFollow(id);
+  if(r.top>top+1)window.scrollTo({top:scrollY+r.top-top,behavior:'smooth'});
   if(el._setHalf)el._setHalf(M.pts[i].half);
+  setRunCur(id,false);
   const t=llOf(M.pts[i]);M.map.panTo(t);if(M.map.getZoom()<16)M.map.setZoom(16);
   M.card.show(M.pts[i],M.markers[i]);
 }
@@ -194,7 +242,6 @@ function mountMap(el,pts){
       // 全螢幕改由我們做：.map-inner 加 .fs 用 position:fixed 鋪滿視窗（不用 Fullscreen API），
       // 切去 Google Maps app 再回來狀態不會掉；UI 元件用 safe-area 當內距往內縮
       const map=new Map(el,{mapId:'DEMO_MAP_ID',gestureHandling:'greedy',mapTypeControl:false,streetViewControl:false,zoomControl:false,cameraControl:false,rotateControl:false,clickableIcons:false,fullscreenControl:false});
-      map.controls[google.maps.ControlPosition.RIGHT_TOP].push(fsButton(el.parentNode));
       const b=new google.maps.LatLngBounds();
       // 覆蓋層全部走 map.controls 放進地圖內部，全螢幕時才看得到
       const card=mapCard(el);
@@ -263,6 +310,7 @@ function mapCard(el){
 // 進入時 pushState 一筆，讓 Android 返回鍵／手勢是「退出全螢幕」而不是離開頁面。
 function setFs(inner,on){
   inner.classList.toggle('fs',on);document.body.classList.toggle('fs-lock',on);
+  const host=inner.closest('.map-box');if(host)host.classList.toggle('fs-host',on);
   const b=inner.querySelector('.fs-btn');if(b){b.textContent=on?'✕ 退出':'⛶ 全螢幕';b.classList.toggle('on',on);}
   const gm=inner.querySelector('.gmap');if(gm&&gm._map&&window.google)google.maps.event.trigger(gm._map.map,'resize');
 }
@@ -312,18 +360,20 @@ function refreshRunPins(){
     M.markers.forEach((m,i)=>{
       const p=M.pts[i];if(!p.id)return;
       const s=pinState(p.id);if(s===p.state)return;
-      p.state=s;changed=true;m.content.className=pinClass(p)+(M.card.selId===p.id?' sel':'');m.zIndex=pinZ(s);
+      p.state=s;changed=true;m.content.className=pinClass(p)+(M.card.selId===p.id?' sel':'')+(el._curId===p.id?' cur':'');m.zIndex=pinZ(s);
       if(M.card.selId===p.id)M.card.refresh();
     });
     if(changed&&isRunDay()&&el===runMaps[0])focusNext(el);
   });
 }
-// wrap：容器，裡面放上午／下午切換與 .gmap。所有圖釘一次建好，切換只是顯示／隱藏＋重新取景
+// wrap：容器，裡面放 .gmap；上午／下午切換 chips 交給工具列（el._lead）當前導。所有圖釘一次建好，切換只是顯示／隱藏＋重新取景
 function buildRunMap(wrap){
-  wrap.innerHTML='<div class="chips"><button type="button" class="chip on" data-half="am">上午 '+(P1.length+P2.length)+' 站</button>'+
-    '<button type="button" class="chip" data-half="pm">下午 '+P3.length+' 站</button></div><div class="gmap"></div>';
+  wrap.innerHTML='<div class="gmap"></div>';
   const el=wrap.querySelector('.gmap');runMaps.push(el);
-  const chips=wrap.querySelector('.chips');chips.hidden=true;
+  const chips=document.createElement('div');chips.className='chips';
+  chips.innerHTML='<button type="button" class="chip on" data-half="am">上午 '+(P1.length+P2.length)+' 站</button>'+
+    '<button type="button" class="chip" data-half="pm">下午 '+P3.length+' 站</button>';
+  el._lead=chips;
   let half='am';
   const apply=()=>{
     const M=el._map;if(!M)return;
@@ -331,13 +381,10 @@ function buildRunMap(wrap){
     M.markers.forEach((m,i)=>{const on=M.pts[i].half===half;m.map=on?M.map:null;if(on)b.extend(m.position);});
     M.map.fitBounds(b,36);
   };
-  const setHalf=h=>{if(h===half)return;half=h;wrap.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x.dataset.half===h));apply();};
+  const setHalf=h=>{if(h===half)return;half=h;chips.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x.dataset.half===h));apply();};
   el._setHalf=setHalf;
-  el._onReady=()=>{
-    el._map.map.controls[google.maps.ControlPosition.TOP_CENTER].push(chips);chips.hidden=false;
-    apply();if(isRunDay()){startGeo(()=>focusNext(el));focusNext(el);}
-  };
-  wrap.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>setHalf(c.dataset.half)));
+  el._onReady=()=>{apply();if(isRunDay()){startGeo(()=>focusNext(el));focusNext(el);}};
+  chips.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>setHalf(c.dataset.half)));
   mountMap(el,runPts('am').concat(runPts('pm')));
 }
 // 9/16 以外的日子：ROUTES 的點依序編 1、2、3…，同一地點出現兩次只標一次

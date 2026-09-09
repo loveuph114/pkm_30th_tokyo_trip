@@ -61,19 +61,25 @@ sw.js               # Service Worker：同源網路優先（資料保鮮）、�
 
 ### 內嵌 Google 地圖（Maps JavaScript API）
 
-路跑頁最上方一張（上午／下午切換，圖釘＝圖鑑編號，灰＝已勾選、紅＝下一站），
-行程頁每張日卡「📍 地圖」展開一張（第一次展開才建立）。
+路跑頁最上方一張（圖釘＝圖鑑編號，灰＝已勾選、紅＝下一站），行程頁每張日卡「📍 地圖」展開一張（第一次展開才建立）。
+- **路跑地圖是 sticky 的**（`#runmap-wrap.run-sticky`，是 `.wrap` 的直接子元素、不在 section 裡，sticky 才蓋得到整段清單）：
+  往下捲到頂欄下方就貼住，`top` 用 JS 量 `.bar` 高度寫進 `--bar-h`。貼頂後頁面捲動時，找清單裡露出超過一半的第一站，
+  地圖 pan 過去、切半天、該圖釘加 `.cur`（紅色外圈）；還沒貼頂不跟。「下一站」與清單的「地圖」鈕會用程式捲動，
+  期間 `holdFollow` 暫停跟隨，捲停 450ms 後把目標設成目前站（不再 pan）。
+- **按鈕全部在地圖下方的工具列 `.map-tools`**（上午／下午 chips、我、下一站、全螢幕），由 `mapControls()` 建在 `.map-inner` 裡；
+  全螢幕時 `.map-inner` 變 flex 直排，工具列貼在螢幕底部。只有資訊卡還走 `map.controls`（BOTTOM_CENTER）。
 - **API key 不在 repo 裡。** 使用者在 app 的表單貼一次，存 `localStorage` 的 `tokyo2026:gmapkey`。
   沒 key 就顯示表單；key 無效時 `gm_authFailure` 會把表單帶錯誤訊息叫回來。
   「更換／清除 key」在路跑頁地圖區塊下方。key 本身應在 Cloud Console 限制網域
   `loveuph114.github.io` 與 `localhost:8000`。
 - 圖釘用 `AdvancedMarkerElement`＋`mapId:'DEMO_MAP_ID'`（Google 的預設樣式 id，不用另建），
   content 是自製的 `.pin` div，狀態變化只改 className，不換元素。
-- 地圖上的覆蓋層（上午／下午切換、「我」「下一站」、資訊卡）全部走 `map.controls` 放進地圖內部，
-  不要用兄弟節點加 absolute 定位：全螢幕時只會顯示全螢幕元素的子樹，外面的東西會消失。
+- 要在全螢幕時也看得到的東西，必須是 `.map-inner` 的子孫（工具列）或走 `map.controls`（資訊卡）：
+  全螢幕只是 `.map-inner` 鋪滿視窗，外面的東西會被蓋掉。
 - 全螢幕是自製的（Google 的 fullscreenControl 關掉）：`.map-inner` 加 `.fs` 用 `position:fixed` 鋪滿視窗，
   **不用 Fullscreen API**——真全螢幕在切到 Google Maps app 再回來時會被瀏覽器退出，且沒有點擊事件不能自動再進去。
-  進入時 `pushState` 一筆，返回鍵＝退出全螢幕。UI 元件（切換列、按鈕、資訊卡）用 `env(safe-area-inset-*)` 的邊距推開系統列。
+  進入時 `pushState` 一筆，返回鍵＝退出全螢幕。工具列用 `env(safe-area-inset-*)`＋固定 36px 推開系統列；
+  sticky 容器有自己的 z-index，進全螢幕時會被加 `.fs-host` 抬到 1000，不然會被底部分頁蓋到。
 - `sw.js` 對 `maps.*` 與 `*.google.com` 主機直接放行，不進 SW 快取（腳本版本會變、圖磚量大）。
 - Google Maps 在背景分頁不會初始化，用瀏覽器面板測試時要把分頁切到前景。
 

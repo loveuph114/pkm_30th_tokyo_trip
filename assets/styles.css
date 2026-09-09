@@ -289,7 +289,6 @@ footer a{color:var(--indigo)}
 .pin.sel{outline:3px solid rgba(39,64,139,.35);outline-offset:1px}
 
 /* 地圖控制鈕、定位藍點、toast */
-.map-ctl{margin:8px;display:flex;flex-direction:column;align-items:flex-start;gap:.3rem}
 .mctl{font-family:var(--mono);font-size:.66rem;font-weight:600;letter-spacing:.03em;padding:.34rem .62rem;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--indigo);box-shadow:0 1px 4px rgba(0,0,0,.18);cursor:pointer}
 .mctl.on{background:var(--indigo);border-color:var(--indigo);color:#fff}
 .me{width:16px;height:16px;border-radius:50%;background:#1A73E8;border:3px solid #fff;box-shadow:0 0 0 6px rgba(26,115,232,.25);transform:translateY(8px);box-sizing:content-box}
@@ -298,13 +297,19 @@ footer a{color:var(--indigo)}
 #toast{position:fixed;left:50%;bottom:calc(4.6rem + env(safe-area-inset-bottom));transform:translate(-50%,8px);background:rgba(20,28,48,.92);color:#fff;font-size:.8rem;padding:.55rem .9rem;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:1100;max-width:88vw}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 
-/* 自製全螢幕（CSS 鋪滿視窗，不用 Fullscreen API）：地圖鋪滿整個螢幕（含狀態列後面），只把 UI 元件用 safe-area 往內推 */
-.map-inner.fs{position:fixed;inset:0;z-index:1000;background:#000}
+/* 地圖下方工具列（.map-inner 的子元素，全螢幕時才會跟著顯示）：上午／下午 chips、我、下一站、全螢幕 */
+.map-tools{display:flex;gap:.35rem;align-items:center;flex-wrap:wrap;padding-top:.4rem}
+.map-tools .chips{margin:0;gap:.35rem}
+.map-tools .chip,.map-tools .mctl{box-shadow:none}
+.map-tools .fs-btn{margin-left:auto}
+/* 自製全螢幕（CSS 鋪滿視窗，不用 Fullscreen API）：地圖鋪滿上方（含狀態列後面），工具列貼在螢幕底部 */
+.map-inner.fs{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;flex-direction:column}
 body.fs-lock{overflow:hidden}
-.map-inner.fs .gmap{height:100%;border-radius:0}
-.fs-btn{margin:8px 8px 0 0}
-.map-inner.fs .chips{margin-top:calc(8px + env(safe-area-inset-top,0px))}
-.map-inner.fs .map-ctl{margin-top:calc(8px + env(safe-area-inset-top,0px));margin-left:calc(8px + env(safe-area-inset-left,0px))}
-.map-inner.fs .fs-btn{margin-top:calc(8px + env(safe-area-inset-top,0px));margin-right:calc(8px + env(safe-area-inset-right,0px))}
+.map-inner.fs .gmap{flex:1;min-height:0;height:auto;border-radius:0}
 /* 底部安全區 Chrome 沒回報（實測為 0），先固定保留 36px 給導覽列（48 太多、24 不夠，實機調出來的） */
-.map-inner.fs .map-card-wrap{padding-bottom:calc(36px + env(safe-area-inset-bottom,0px))}
+.map-inner.fs .map-tools{flex-shrink:0;background:var(--card);border-top:1px solid var(--line);
+  padding:.45rem calc(.6rem + env(safe-area-inset-right,0px)) calc(36px + env(safe-area-inset-bottom,0px)) calc(.6rem + env(safe-area-inset-left,0px))}
+/* 路跑頁地圖：往下捲到頂欄下方就貼住（sticky 以 .wrap 為範圍，蓋住整段清單）；全螢幕時把 z-index 抬高，不然會被 z-index 更高的底部分頁蓋到 */
+.run-sticky{position:sticky;top:var(--bar-h,56px);z-index:20;background:var(--bg);padding:.5rem 1rem .5rem;margin-top:.6rem;border-bottom:1px solid var(--line)}
+.run-sticky.fs-host{z-index:1000}
+.pin.cur{outline:3px solid rgba(228,50,43,.5);outline-offset:2px}
