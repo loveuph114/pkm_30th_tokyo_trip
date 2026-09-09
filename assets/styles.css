@@ -183,24 +183,42 @@ section{padding:2.2rem 1rem 0}
 .opt-note{font-size:.75rem;color:var(--mid);line-height:1.55;margin:.12rem 0 0}
 .tl-opts .stop-foot{margin-top:.3rem}
 
-/* 日卡「午餐」「晚餐」面板：地圖（圖釘＝排名）＋名單，名單列沿用 .opt 樣式 */
+/* 日卡「午餐」「晚餐」鈕 → 全螢幕 dialog（.mdlg）：標題列／地圖固定在上／篩選與排序 chip／名單自己捲 */
 :root{--lunch:#E0820C;--dinner:#7B4EA8}
 .day-head .mt+.mt{margin-left:.3rem}
 .mapbtn.rt.mt.meal.lunch{color:var(--lunch);border-color:var(--lunch)}
 .mapbtn.rt.mt.meal.dinner{color:var(--dinner);border-color:var(--dinner)}
-.mapbtn.rt.mt.meal.lunch.on{background:var(--lunch);color:#fff}
-.mapbtn.rt.mt.meal.dinner.on{background:var(--dinner);color:#fff}
-.day-meals{margin:0 0 .6rem}
-.day-meals .gmap{height:min(40vh,300px)}
-.meal-note{margin:.35rem 0 .1rem;font-size:.7rem;color:var(--dim);line-height:1.5}
-.tl-opts.meal-list{display:block}
+.mdlg{position:fixed;inset:0;z-index:900;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+.mdlg[hidden]{display:none}
+body.dlg-lock{overflow:hidden}
+.mdlg-head{display:flex;align-items:flex-start;gap:.6rem;padding:calc(.6rem + env(safe-area-inset-top,0px)) .9rem .5rem;background:var(--card);border-bottom:1px solid var(--line);flex-shrink:0}
+.mdlg-tt{flex:1;min-width:0}
+.mdlg-title{font-family:var(--round);font-weight:800;font-size:1rem;line-height:1.3}
+.mdlg-note{font-size:.66rem;color:var(--dim);line-height:1.45;margin-top:.1rem}
+.mdlg-x{background:none;border:0;font-size:1.5rem;line-height:1;color:var(--dim);padding:0 .1rem;cursor:pointer;flex-shrink:0;margin-top:-.1rem}
+.mdlg .map-box{flex-shrink:0}
+.mdlg .gmap{height:clamp(140px,36vh,300px);border-radius:0}
+.mdlg-tools{padding:.45rem .9rem .4rem;background:var(--card);border-bottom:1px solid var(--line);flex-shrink:0}
+.mdlg-chips{display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none;margin:0 -.9rem;padding:0 .9rem .1rem}
+.mdlg-chips::-webkit-scrollbar{display:none}
+.mdlg-chips .chip{flex-shrink:0;white-space:nowrap}
+.mdlg-chips .chip b{font-weight:400;opacity:.7;margin-left:.25rem}
+.mdlg-sort{display:flex;gap:.35rem;align-items:center;margin-top:.4rem}
+.mdlg-n{margin-left:auto;font-family:var(--mono);font-size:.62rem;color:var(--dim)}
+.mdlg-list{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;list-style:none;margin:0;padding:0 .9rem calc(1.2rem + env(safe-area-inset-bottom,0px))}
+.mdlg-list .opt{display:block;padding:.6rem 0 .5rem;border-top:1px dashed var(--line-soft)}
+.mdlg-list .opt:first-child{border-top:0}
+.mdlg-list .opt[hidden]{display:none}
 .meal-opt{cursor:pointer}
 .opt-no{flex-shrink:0;width:20px;height:20px;border-radius:50%;border:2px solid var(--indigo);color:var(--ink);font-family:var(--mono);font-size:.6rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;align-self:center}
 .opt-no.p-lunch{border-color:var(--lunch)} .opt-no.p-dinner{border-color:var(--dinner)}
+.opt.cur .opt-no.p-lunch{background:var(--lunch);color:#fff} .opt.cur .opt-no.p-dinner{background:var(--dinner);color:#fff}
+.opt-me{color:var(--indigo);font-weight:600}
 .meal-pics{display:flex;gap:.3rem;margin:.35rem 0 .1rem}
 .meal-pics img{width:calc((100% - .6rem)/3);max-width:120px;aspect-ratio:1;object-fit:cover;border-radius:8px;background:var(--line-soft)}
 .meal-list .stop-foot{display:flex;gap:.4rem;flex-wrap:wrap}
 .pin.p-lunch{background:var(--card);border-color:var(--lunch)} .pin.p-dinner{background:var(--card);border-color:var(--dinner)}
+.pin.cur.p-lunch{background:var(--lunch);color:#fff} .pin.cur.p-dinner{background:var(--dinner);color:#fff}
 .mc-photo{width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--line-soft)}
 .mc-rank{display:inline-block;font-family:var(--mono);font-size:.62rem;font-weight:700;color:var(--dim);margin-right:.35rem;vertical-align:middle}
 .mc-score{color:var(--red);font-weight:600}
@@ -277,7 +295,7 @@ footer a{color:var(--indigo)}
 .me{width:16px;height:16px;border-radius:50%;background:#1A73E8;border:3px solid #fff;box-shadow:0 0 0 6px rgba(26,115,232,.25);transform:translateY(8px);box-sizing:content-box}
 .mc-dist{color:var(--indigo);font-weight:600}
 .mapbtn.locate{display:inline-flex;align-items:center;cursor:pointer}
-#toast{position:fixed;left:50%;bottom:calc(4.6rem + env(safe-area-inset-bottom));transform:translate(-50%,8px);background:rgba(20,28,48,.92);color:#fff;font-size:.8rem;padding:.55rem .9rem;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:88vw}
+#toast{position:fixed;left:50%;bottom:calc(4.6rem + env(safe-area-inset-bottom));transform:translate(-50%,8px);background:rgba(20,28,48,.92);color:#fff;font-size:.8rem;padding:.55rem .9rem;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:1100;max-width:88vw}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 
 /* 自製全螢幕（CSS 鋪滿視窗，不用 Fullscreen API）：地圖鋪滿整個螢幕（含狀態列後面），只把 UI 元件用 safe-area 往內推 */

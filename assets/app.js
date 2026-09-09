@@ -202,7 +202,7 @@ function mountMap(el,pts){
       const markers=pts.map(p=>{
         const [lat,lng]=p.ll.split(',').map(Number);b.extend({lat,lng});
         const m=new Marker({map,position:{lat,lng},content:pinEl(p),title:p.label,zIndex:pinZ(p.state),gmpClickable:true});
-        let last=0;const tap=()=>{const t=Date.now();if(t-last<300)return;last=t;card.show(p,m);map.panTo({lat,lng});};
+        let last=0;const tap=()=>{const t=Date.now();if(t-last<300)return;last=t;card.show(p,m);map.panTo({lat,lng});if(p.onTap)p.onTap();};
         m.addEventListener('gmp-click',tap);
         m.content.addEventListener('click',e=>{e.stopPropagation();tap();});
         return m;
@@ -281,8 +281,13 @@ function fsButton(inner){
   });
   return b;
 }
-window.addEventListener('popstate',()=>{exitFs();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&exitFs()&&history.state&&history.state.fs)history.back();});
+// 返回鍵：先退全螢幕，沒有全螢幕才關餐廳 dialog（兩者各 pushState 一筆，順序剛好相反）
+window.addEventListener('popstate',()=>{if(!exitFs())closeDlg();});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if(document.querySelector('.map-inner.fs')){if(history.state&&history.state.fs)history.back();else exitFs();return;}
+  requestCloseDlg();
+});
 function pinState(id){
   if(done.has(id))return 'done';
   const nxt=ALL.find(x=>!done.has(x[1]));
@@ -358,55 +363,155 @@ function dayMapToggle(card,date,head,before){
   });
 }
 
-// 行程日卡：「午餐」「晚餐」兩顆鈕，各自展開一張地圖（圖釘＝名單排名）＋名單（MEALS，由 notes/gen_meals.py 產生）
-// 同一天兩個面板互斥；第一次展開才建地圖與 DOM。點名單列 → 地圖聚焦該店並開資訊卡
+// 行程日卡：「午餐」「晚餐」兩顆鈕，各開一個全螢幕 dialog：地圖固定在最上面、下面是名單（MEALS，由 notes/gen_meals.py 產生）
+// 名單依距離排序（預設車站距離；按「距我」改成離目前位置），類型 chip 可多選篩選；圖釘編號＝目前名單順序
+// 名單捲動時地圖自動移到目前最上面那家（圖釘與該列一起標記）；點圖釘則把名單捲到那家。dialog 第一次開才建
 const MEAL_IMG='https://tblg.k-img.com/restaurant/images/Rvw/';
-function dayMealToggle(card,date,head,before){
+const gmapUrl=n=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(n);
+const dlgs=[];   // 已建立的 dialog（同時只會開一個）
+function openDlg(d){
+  closeDlg();
+  d.el.hidden=false;d.open=true;document.body.classList.add('dlg-lock');
+  history.pushState({mdlg:1},'');
+  // 地圖要在容器看得見之後才建（display:none 時建出來尺寸是 0，取景會壞）
+  if(!d.ready){d.ready=true;d.mount();}
+  else{const gm=d.el.querySelector('.gmap');if(gm&&gm._map&&window.google)google.maps.event.trigger(gm._map.map,'resize');}
+}
+function closeDlg(){
+  const d=dlgs.find(x=>x.open);if(!d)return false;
+  d.el.hidden=true;d.open=false;document.body.classList.remove('dlg-lock');return true;
+}
+// 關閉鈕／Esc：有 pushState 過就走 history.back()（popstate 會關），沒有就直接關
+function requestCloseDlg(){
+  if(!dlgs.some(x=>x.open))return false;
+  if(history.state&&history.state.mdlg)history.back();else closeDlg();
+  return true;
+}
+function dayMealToggle(card,date,head){
   const m=typeof MEALS!=='undefined'&&MEALS[date];
   if(!m)return;
-  const gmap=n=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(n);
-  const panels=[];
   [['lunch','午餐','lava-cookie','🍱'],['dinner','晚餐','moomoo-milk','🍶']].forEach(([k,label,ic,fb])=>{
     const s=m[k];if(!s||!s.list.length)return;
     const btn=document.createElement('button');btn.type='button';btn.className='mapbtn rt mt meal '+k;btn.innerHTML=icon(ic,fb)+label;
     (head.querySelector('.day-btns')||head).appendChild(btn);
-    const wrap=document.createElement('div');wrap.className='day-meals map-box';wrap.hidden=true;card.insertBefore(wrap,before);
-    panels.push({btn,wrap});
-    btn.addEventListener('click',e=>{
-      e.stopPropagation();
-      const open=wrap.hidden;
-      panels.forEach(p=>{p.wrap.hidden=true;p.btn.classList.remove('on');});
-      if(!open)return;
-      wrap.hidden=false;btn.classList.add('on');
-      if(wrap.dataset.ready)return;wrap.dataset.ready='1';
-      build(wrap,s,k);
-    });
+    let d=null;
+    btn.addEventListener('click',e=>{e.stopPropagation();if(!d){d=mealDlg(date+' '+label,s,k);dlgs.push(d);}openDlg(d);});
   });
-  function build(wrap,s,k){
-    // 每列：[店名, 類型, 分數, 距離, 預算, Tabelog 連結, "lat,lng", [縮圖…]]
-    const pts=[];
-    s.list.forEach((o,i)=>{if(!o[6])return;pts.push({ll:o[6],no:String(i+1),label:o[0],brand:k,score:o[2],note:o[1]+' · '+o[3]+' · '+o[4],
-      url:o[5],urlLabel:'食べログ',url2:gmap(o[0]),img:o[7]&&o[7][0]?MEAL_IMG+o[7][0]:''});});
-    wrap.innerHTML='<div class="gmap"></div><p class="meal-note">'+s.note+(pts.length<s.list.length?'（'+(s.list.length-pts.length)+' 家沒座標，只在名單）':'')+'</p><ul class="tl-opts meal-list"></ul>';
-    const ul=wrap.querySelector('.meal-list'),gm=wrap.querySelector('.gmap');
-    s.list.forEach((o,i)=>{
-      const li=document.createElement('li');li.className='opt meal-opt';li.tabIndex=0;
-      li.innerHTML='<div class="opt-line"><span class="opt-no p-'+k+'">'+(i+1)+'</span><span class="opt-name">'+o[0]+'</span>'+
-        '<span class="opt-score">食べログ '+o[2]+'</span><span class="opt-tag">'+o[1]+'</span></div>'+
-        '<div class="opt-note">'+o[3]+' · '+o[4]+'</div>'+
-        (o[7]&&o[7].length?'<div class="meal-pics">'+o[7].map(u=>'<img src="'+MEAL_IMG+u+'" alt="" loading="lazy" onerror="this.remove()">').join('')+'</div>':'')+
-        '<div class="stop-foot"><a class="mapbtn" href="'+o[5]+'" target="_blank" rel="noopener">食べログ ↗</a>'+
-        '<a class="mapbtn" href="'+gmap(o[0])+'" target="_blank" rel="noopener">Google 地圖 ↗</a></div>';
-      li.querySelectorAll('a').forEach(a=>a.addEventListener('click',e=>e.stopPropagation()));
-      const go=()=>{const M=gm._map;if(!M||!o[6])return;
-        const j=M.pts.findIndex(p=>p.label===o[0]);if(j<0)return;
-        focusOn(gm,M.pts[j],M.markers[j],true);gm.scrollIntoView({behavior:'smooth',block:'nearest'});};
-      li.addEventListener('click',go);
-      li.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});
-      ul.appendChild(li);
-    });
-    if(pts.length)mountMap(gm,pts);else gm.remove();
+}
+// 距離字串「秋葉原駅 432m」→ 432；沒數字的（中禅寺温泉／日光市街）排最後、彼此維持原本的評分順序
+const stMeters=t=>{const x=/(\d+)\s*m\b/.exec(t);return x?+x[1]:Infinity;};
+function mealDlg(title,s,k){
+  // 每列：[店名, 類型, 分數, 距離, 預算, Tabelog 連結, "lat,lng", [縮圖…]]
+  const cnt={};
+  s.list.forEach(o=>o[1].split('・').forEach(t=>{cnt[t]=(cnt[t]||0)+1;}));
+  const types=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]||a.localeCompare(b,'zh-Hant'));
+  const el=document.createElement('div');el.className='mdlg';el.hidden=true;
+  el.innerHTML='<div class="mdlg-head"><div class="mdlg-tt"><div class="mdlg-title">'+title+'</div><div class="mdlg-note">'+s.note+'</div></div>'+
+    '<button type="button" class="mdlg-x" aria-label="關閉">×</button></div>'+
+    '<div class="map-box"><div class="gmap"></div></div>'+
+    '<div class="mdlg-tools"><div class="mdlg-chips"><button type="button" class="chip on" data-t="">全部</button>'+
+    types.map(t=>'<button type="button" class="chip" data-t="'+t+'">'+t+'<b>'+cnt[t]+'</b></button>').join('')+'</div>'+
+    '<div class="mdlg-sort"><button type="button" class="chip on" data-s="st">近 → 遠（車站）</button><button type="button" class="chip" data-s="me">◎ 距我</button><span class="mdlg-n"></span></div></div>'+
+    '<ul class="mdlg-list meal-list"></ul>';
+  document.body.appendChild(el);
+  const gm=el.querySelector('.gmap'),ul=el.querySelector('.mdlg-list'),nEl=el.querySelector('.mdlg-n');
+  const sel=new Set();let sortMode='st',vis=[],cur=null;
+  const d={el,open:false,ready:false};
+  // 每列的 li 只建一次，之後篩選／排序只是重排與顯示／隱藏
+  const rows=s.list.map((o,i)=>{
+    const li=document.createElement('li');li.className='opt meal-opt';li.tabIndex=0;li.hidden=true;
+    li.innerHTML='<div class="opt-line"><span class="opt-no p-'+k+'"></span><span class="opt-name">'+o[0]+'</span>'+
+      '<span class="opt-score">食べログ '+o[2]+'</span><span class="opt-tag">'+o[1]+'</span></div>'+
+      '<div class="opt-note">'+o[3]+' · '+o[4]+'<span class="opt-me"></span></div>'+
+      (o[7]&&o[7].length?'<div class="meal-pics">'+o[7].map(u=>'<img src="'+MEAL_IMG+u+'" alt="" loading="lazy" onerror="this.remove()">').join('')+'</div>':'')+
+      '<div class="stop-foot"><a class="mapbtn" href="'+o[5]+'" target="_blank" rel="noopener">食べログ ↗</a>'+
+      '<a class="mapbtn" href="'+gmapUrl(o[0])+'" target="_blank" rel="noopener">Google 地圖 ↗</a></div>';
+    li.querySelectorAll('a').forEach(a=>a.addEventListener('click',e=>e.stopPropagation()));
+    const r={o,i,li,ll:o[6]?llOf({ll:o[6]}):null,st:stMeters(o[3]),types:o[1].split('・'),p:null,m:null};
+    const go=()=>{const M=gm._map;if(!M||!r.m)return;setCur(r,false);panCard(M,r,true);};
+    li.addEventListener('click',go);
+    li.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});
+    ul.appendChild(li);
+    return r;
+  });
+  const pts=[];
+  rows.forEach(r=>{
+    if(!r.ll)return;
+    const o=r.o;
+    r.p={ll:o[6],no:String(r.i+1),ri:r.i,label:o[0],brand:k,score:o[2],note:o[1]+' · '+o[3]+' · '+o[4],
+      url:o[5],urlLabel:'食べログ',url2:gmapUrl(o[0]),img:o[7]&&o[7][0]?MEAL_IMG+o[7][0]:'',
+      // 點圖釘：名單捲到這家（捲動跟隨會接著把它設成目前列）
+      onTap:()=>{setCur(r,false);ul.scrollTop=r.li.offsetTop;}};
+    pts.push(r.p);
+  });
+  const panTo=(M,r)=>{M.map.panTo(r.ll);if(M.map.getZoom()<16)M.map.setZoom(16);};
+  const panCard=(M,r,openCard)=>{panTo(M,r);if(openCard)M.card.show(r.p,r.m);};
+  // 目前列：名單列與圖釘一起標記；pan=true 時地圖移過去並收起資訊卡
+  function setCur(r,pan){
+    if(cur===r)return;
+    if(cur){cur.li.classList.remove('cur');if(cur.m){cur.m.content.classList.remove('cur');cur.m.zIndex=pinZ('');}}
+    cur=r;if(!r)return;
+    r.li.classList.add('cur');
+    if(r.m){r.m.content.classList.add('cur');r.m.zIndex=9;}
+    const M=gm._map;
+    if(pan&&M&&r.m){M.card.hide();panTo(M,r);}
   }
+  function fitVis(){
+    const M=gm._map;if(!M)return;
+    const on=vis.filter(r=>r.m);if(!on.length)return;
+    M.card.hide();
+    if(on.length===1){panTo(M,on[0]);return;}
+    const b=new google.maps.LatLngBounds();on.forEach(r=>b.extend(r.ll));M.map.fitBounds(b,36);
+  }
+  function render(fit){
+    const list=rows.filter(r=>!sel.size||r.types.some(t=>sel.has(t)));
+    const key=sortMode==='me'&&mePos?r=>r.ll?distM(mePos,r.ll):Infinity:r=>r.st;
+    list.sort((a,b)=>key(a)-key(b)||a.i-b.i);
+    const M=gm._map;
+    rows.forEach(r=>{r.li.hidden=true;if(r.m)r.m.map=null;});
+    list.forEach((r,n)=>{
+      ul.appendChild(r.li);r.li.hidden=false;
+      r.li.querySelector('.opt-no').textContent=n+1;
+      r.li.querySelector('.opt-me').textContent=(sortMode==='me'&&mePos&&r.ll)?' · 距你 '+fmtDist(distM(mePos,r.ll)):'';
+      if(r.p)r.p.no=String(n+1);
+      if(r.m){r.m.map=M.map;r.m.content.textContent=n+1;}
+    });
+    vis=list;
+    nEl.textContent=list.length+' 家';
+    ul.scrollTop=0;setCur(list[0]||null,false);
+    if(fit)fitVis();
+  }
+  // 捲動跟隨：找目前露出超過一半（或 56px）的第一列
+  let raf=0;
+  ul.addEventListener('scroll',()=>{
+    if(raf)return;
+    raf=requestAnimationFrame(()=>{
+      raf=0;const top=ul.scrollTop;
+      const r=vis.find(x=>x.li.offsetTop+x.li.offsetHeight-top>Math.min(x.li.offsetHeight*.5,56));
+      if(r&&r!==cur)setCur(r,true);
+    });
+  },{passive:true});
+  el.querySelectorAll('.mdlg-chips .chip').forEach(c=>c.addEventListener('click',()=>{
+    const t=c.dataset.t;
+    if(!t)sel.clear();else if(sel.has(t))sel.delete(t);else sel.add(t);
+    el.querySelectorAll('.mdlg-chips .chip').forEach(x=>x.classList.toggle('on',x.dataset.t?sel.has(x.dataset.t):!sel.size));
+    render(true);
+  }));
+  const setSort=mode=>{sortMode=mode;el.querySelectorAll('.mdlg-sort .chip').forEach(x=>x.classList.toggle('on',x.dataset.s===mode));render(true);};
+  el.querySelectorAll('.mdlg-sort .chip').forEach(c=>c.addEventListener('click',()=>{
+    if(c.dataset.s==='me')startGeo(()=>setSort('me'));else setSort('st');
+  }));
+  el.querySelector('.mdlg-x').addEventListener('click',requestCloseDlg);
+  d.mount=()=>{
+    render(false);
+    if(!pts.length){gm.parentNode.remove();return;}
+    gm._onReady=M=>{
+      pts.forEach((p,j)=>{rows[p.ri].m=M.markers[j];});
+      render(true);
+    };
+    mountMap(gm,pts);
+  };
+  return d;
 }
 
 function render(){
