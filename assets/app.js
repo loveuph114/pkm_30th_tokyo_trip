@@ -46,9 +46,10 @@ function stopEl(d,id,no){
     '<div class="stop-note">'+note+'</div>'+
     '<div class="stop-foot"><span class="pill p-'+brand+'">'+brand+'</span>'+
     '<a class="mapbtn" href="'+(cid.indexOf('http')===0?cid:'https://maps.google.com/?cid='+cid)+'" target="_blank" rel="noopener">開地圖 \u2197</a>'+
+    (COORDS[cid]?'<a class="mapbtn" href="'+navUrl(COORDS[cid])+'" target="_blank" rel="noopener">導航 \u2197</a>':'')+
     '<button type="button" class="mapbtn locate">'+icon('poke-radar','📍')+'地圖</button>'+
     '<span class="dex-name" data-no="'+no+'"></span></div></div>';
-  li.querySelector('a.mapbtn').addEventListener('click',e=>e.stopPropagation());
+  li.querySelectorAll('a.mapbtn').forEach(a=>a.addEventListener('click',e=>e.stopPropagation()));
   li.querySelector('.locate').addEventListener('click',e=>{e.stopPropagation();locateStop(id);});
   const toggle=function(){
     if(done.has(id)){done.delete(id);}else{done.add(id);}
@@ -83,6 +84,9 @@ function distM(a,b){
   return 2*R*Math.asin(Math.sqrt(h));
 }
 const llOf=p=>{const [lat,lng]=p.ll.split(',').map(Number);return {lat,lng};};
+const navUrl=ll=>'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(ll)+'&travelmode=walking&dir_action=navigate';
+// 資訊卡只在全螢幕時用（一般模式列表就在地圖下方，點圖釘改成捲列表）
+const inFs=el=>!!el.closest('.map-inner.fs');
 // 定位：watchPosition，藍點畫在每張地圖上；cb 只在第一次拿到位置時呼叫
 function startGeo(cb){
   if(!navigator.geolocation){toast('這台裝置不支援定位');return;}
@@ -132,7 +136,7 @@ function mapControls(el){
   // 下一站：地圖聚焦＋開資訊卡，清單也捲到那一站（捲動期間暫停跟隨，免得沿路每站都 pan 一次）
   if(nx)nx.addEventListener('click',()=>{
     const n=nextPt(el);
-    if(!focusNext(el,true)){toast('全部收工，沒有下一站了');return;}
+    if(!focusNext(el,inFs(el))){toast('全部收工，沒有下一站了');return;}
     if(n&&el===runMaps[0])scrollToStop(n.p.id);
   });
 }
@@ -186,7 +190,6 @@ function locateStop(id){
   if(el._setHalf)el._setHalf(M.pts[i].half);
   setRunCur(id,false);
   const t=llOf(M.pts[i]);M.map.panTo(t);if(M.map.getZoom()<16)M.map.setZoom(16);
-  M.card.show(M.pts[i],M.markers[i]);
 }
 function getKey(){try{return localStorage.getItem(GKEY)||'';}catch(e){return '';}}
 function loadGmaps(){
@@ -249,7 +252,7 @@ function mountMap(el,pts){
       const markers=pts.map(p=>{
         const [lat,lng]=p.ll.split(',').map(Number);b.extend({lat,lng});
         const m=new Marker({map,position:{lat,lng},content:pinEl(p),title:p.label,zIndex:pinZ(p.state),gmpClickable:true});
-        let last=0;const tap=()=>{const t=Date.now();if(t-last<300)return;last=t;card.show(p,m);map.panTo({lat,lng});if(p.onTap)p.onTap();};
+        let last=0;const tap=()=>{const t=Date.now();if(t-last<300)return;last=t;map.panTo({lat,lng});if(p.onTap&&!inFs(el))p.onTap();else card.show(p,m);};
         m.addEventListener('gmp-click',tap);
         m.content.addEventListener('click',e=>{e.stopPropagation();tap();});
         return m;
@@ -272,7 +275,6 @@ function mapCard(el){
   const outer=document.createElement('div');outer.className='map-card-wrap';outer.appendChild(box);
   let cur=null,curM=null;
   const placeUrl=p=>p.url||('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.label));
-  const navUrl=p=>'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(p.ll)+'&travelmode=walking&dir_action=navigate';
   const api={selId:null,box:outer};
   api.refresh=()=>{
     if(!cur)return;
@@ -290,7 +292,7 @@ function mapCard(el){
       '<div class="mc-acts">'+
       '<a class="mapbtn rt" href="'+placeUrl(p)+'" target="_blank" rel="noopener">'+icon('town-map','🗺')+(p.urlLabel||'打開地點')+'</a>'+
       (p.url2?'<a class="mapbtn rt" href="'+p.url2+'" target="_blank" rel="noopener">'+icon('town-map','🗺')+'Google 地圖</a>':'')+
-      '<a class="mapbtn rt" href="'+navUrl(p)+'" target="_blank" rel="noopener">'+icon('dowsing-machine','🧭')+'導航</a>'+
+      '<a class="mapbtn rt" href="'+navUrl(p.ll)+'" target="_blank" rel="noopener">'+icon('dowsing-machine','🧭')+'導航</a>'+
       (p.id?'<button type="button" class="mapbtn rt mt mc-done'+(isDone?' on':'')+'">'+icon('poke-ball','●')+(isDone?'取消完成':'完成')+'</button>':'')+
       '</div>';
     box.querySelector('.mc-x').addEventListener('click',api.hide);
@@ -348,7 +350,7 @@ function runPts(half){
     const c=COORDS[d[4]];
     if(!c||(half==='pm')!==(i>=cut))return null;
     return {ll:c,no:String(i+1).padStart(2,'0'),label:d[1],time:d[0],note:d[3],dex:i+1,brand:d[2],id,half,state:pinState(id),
-      url:d[4].indexOf('http')===0?d[4]:'https://maps.google.com/?cid='+d[4]};
+      url:d[4].indexOf('http')===0?d[4]:'https://maps.google.com/?cid='+d[4],onTap:()=>scrollToStop(id)};
   }).filter(Boolean);
   if(half==='am')pts.unshift({ll:HOTEL[1],no:'H',label:HOTEL[0],half,state:'hotel'});
   return pts;
@@ -472,10 +474,11 @@ function mealDlg(title,s,k){
       '<div class="opt-note">'+o[3]+' · '+o[4]+'<span class="opt-me"></span></div>'+
       (o[7]&&o[7].length?'<div class="meal-pics">'+o[7].map(u=>'<img src="'+MEAL_IMG+u+'" alt="" loading="lazy" onerror="this.remove()">').join('')+'</div>':'')+
       '<div class="stop-foot"><a class="mapbtn" href="'+o[5]+'" target="_blank" rel="noopener">食べログ ↗</a>'+
-      '<a class="mapbtn" href="'+gmapUrl(o[0])+'" target="_blank" rel="noopener">Google 地圖 ↗</a></div>';
+      '<a class="mapbtn" href="'+gmapUrl(o[0])+'" target="_blank" rel="noopener">Google 地圖 ↗</a>'+
+      (o[6]?'<a class="mapbtn" href="'+navUrl(o[6])+'" target="_blank" rel="noopener">導航 ↗</a>':'')+'</div>';
     li.querySelectorAll('a').forEach(a=>a.addEventListener('click',e=>e.stopPropagation()));
     const r={o,i,li,ll:o[6]?llOf({ll:o[6]}):null,st:stMeters(o[3]),types:o[1].split('・'),p:null,m:null};
-    const go=()=>{const M=gm._map;if(!M||!r.m)return;setCur(r,false);panCard(M,r,true);};
+    const go=()=>{const M=gm._map;if(!M||!r.m)return;setCur(r,false);panTo(M,r);};
     li.addEventListener('click',go);
     li.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});
     ul.appendChild(li);
@@ -492,7 +495,6 @@ function mealDlg(title,s,k){
     pts.push(r.p);
   });
   const panTo=(M,r)=>{M.map.panTo(r.ll);if(M.map.getZoom()<16)M.map.setZoom(16);};
-  const panCard=(M,r,openCard)=>{panTo(M,r);if(openCard)M.card.show(r.p,r.m);};
   // 目前列：名單列與圖釘一起標記；pan=true 時地圖移過去並收起資訊卡
   function setCur(r,pan){
     if(cur===r)return;
