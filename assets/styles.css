@@ -258,6 +258,7 @@ footer a{color:var(--indigo)}
 .chip.on{background:var(--indigo);border-color:var(--indigo);color:#fff}
 .map-foot{margin:.5rem 0 0;font-size:.7rem;color:var(--dim)}
 .linkbtn{background:none;border:0;padding:0;color:var(--dim);text-decoration:underline;font-size:inherit;cursor:pointer}
+.sec-head .sec-act{margin-left:auto;font-size:.7rem;font-family:var(--mono);white-space:nowrap}
 .day-map{margin:0 0 .6rem}
 .day-map .gmap{height:min(40vh,300px)}
 /* 日卡標題列三顆鈕（地圖／午餐／晚餐）統一：外框色＝各自主色，開啟時填滿 */
