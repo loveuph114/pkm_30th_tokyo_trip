@@ -4,8 +4,15 @@
 import json, math, io, sys, itertools
 sys.stdout.reconfigure(encoding='utf-8')
 
-SPEED, DWELL, DET, MAXLEG = 65.0, 2.0, 1.3, 350
-KAYABA = (35.6799, 139.7800)      # 日比谷線 茅場町駅
+# 用法：python notes/kayabacho_plan.py [walk|bike]。walk＝雨天步行（日比谷線到茅場町起）；bike＝單車評估（從飯店騎過去）
+MODE = sys.argv[1] if len(sys.argv) > 1 else 'walk'
+if MODE == 'bike':
+    SPEED, DWELL, DET, MAXLEG, N1, RADIUS = 200.0, 1.5, 1.3, 600, 18, 1300
+    KAYABA = (35.7048331, 139.772273)  # 起點＝飯店（騎車）
+else:
+    SPEED, DWELL, DET, MAXLEG, N1, RADIUS = 65.0, 2.0, 1.3, 350, 14, 900
+    KAYABA = (35.6799, 139.7800)      # 日比谷線 茅場町駅
+KAYABA_ST = (35.6799, 139.7800)
 DX = (35.6802902, 139.7742695)    # ポケモンセンタートウキョーDX
 C = json.load(io.open('notes/kayabacho_candidates.json', encoding='utf-8'))['stores']
 
@@ -21,7 +28,7 @@ def w(a, b):
     return hav(a, b) * DET
 
 
-stores = [{'brand': b, 'name': n, 'll': (la, lo), 'cid': str(int(hx, 16)), 'status': st, 'd': hav(KAYABA, (la, lo))} for b, n, la, lo, hx, st in C]
+stores = [{'brand': b, 'name': n, 'll': (la, lo), 'cid': str(int(hx, 16)), 'status': st, 'd': hav(KAYABA_ST, (la, lo))} for b, n, la, lo, hx, st in C]
 EXCL = {'ローソン 日本橋高島屋三井ビルディング店', 'ローソン メトロス茅場町中央口店'}  # 辦公大樓／站內小店，07:00 才開
 pool = [s for s in stores if s['name'] not in EXCL]
 print('茅場町駅 600m 內：Lawson', sum(1 for s in pool if s['brand'] == 'lawson' and s['d'] <= 600),
@@ -107,13 +114,15 @@ def show(title, route, start, t0, end=None):
 
 
 # ---- P1：Lawson／7-11，14 站，茅場町駅起、終點自由（早餐就地）----
-p1pool = [s for s in pool if s['brand'] in ('lawson', 'seven') and s['d'] <= 900]
+p1pool = [s for s in pool if s['brand'] in ('lawson', 'seven') and s['d'] <= RADIUS]
 laws = [s for s in p1pool if s['brand'] == 'lawson' and s['d'] <= 500]
 best = None
 for duo in itertools.permutations(laws, 2):
+    if duo[0]['status'] != '24h':  # 第一站限定 24 小時店：07:00 才開門的店不能當起手（開門＝開賣，沒緩衝）
+        continue
     d0 = w(KAYABA, duo[0]['ll']) + w(duo[0]['ll'], duo[1]['ll'])
     rest = [s for s in p1pool if s not in duo]
-    seq, d = build(duo[1]['ll'], None, rest, 12)
+    seq, d = build(duo[1]['ll'], None, rest, N1 - 2)
     if best is None or d0 + d < best[0]:
         best = (d0 + d, list(duo) + seq)
 route1 = best[1]
@@ -127,4 +136,4 @@ start2 = route1[-1]['ll']
 seq2, _ = build(start2, DX, p2pool, 6)
 t0 = 9 * 60 + 55 - w(start2, seq2[0]['ll']) / SPEED
 rows2, tot2 = show('P2 茅場町版（→ DX）', seq2, start2, t0, DX)
-json.dump({'p1': rows1, 'p1_m': tot1, 'p2': rows2, 'p2_m': tot2}, io.open('notes/kayabacho_plan_out.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+json.dump({'p1': rows1, 'p1_m': tot1, 'p2': rows2, 'p2_m': tot2}, io.open('notes/kayabacho_plan_out' + ('_bike' if MODE == 'bike' else '') + '.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)

@@ -26,13 +26,13 @@
     <div class="bar-label" id="nextLabel">下一站</div>
     <div class="bar-name" id="nextName">尚未開始</div>
   </div>
-  <div class="bar-dex"><img id="barSprite" alt="" hidden><span class="bar-count" id="count">0/32</span></div>
+  <div class="bar-dex"><img id="barSprite" alt="" hidden><span class="bar-count" id="count">0/36</span></div>
 </div>
 <div class="wrap">
   <header class="hero">
     <div class="eyebrow">9月16日（三）· 07:00 開賣<span class="rain-only"> · ☔ 步行版</span></div>
-    <h1>上午 20 家超商<br><em>下午 12 家店</em></h1>
-    <p class="hero-sub dry-only">30th CELEBRATION 全球同步發售。勾掉一站捕獲一隻；全家收完人就在日本橋，直接進 DX 用 12:00 整理券。</p>
+    <h1><span class="dry-only">上午 24 家超商</span><span class="rain-only">上午 20 家超商</span><br><em>下午 12 家店</em></h1>
+    <p class="hero-sub dry-only">30th CELEBRATION 全球同步發售。勾掉一站捕獲一隻；兜町・茅場町一帶 Lawson 最密，全家收完人就在 DX 門口，12:00 整理券直接進場。</p>
     <p class="hero-sub rain-only">☔ 步行版：日比谷線直達茅場町，Lawson 密度是神田的三倍。14 家超商繞茅場町・八丁堀・兜町到人形町，全家再一路走到 DX 門口。</p>
     <button type="button" class="rainbtn" id="rainbtn"><span class="dry-only">☔ 下雨不能騎車？切到雨天備案</span><span class="rain-only">☔ 雨天備案 · 步行版（點我切回單車版）</span></button>
     <div class="cd">
@@ -47,15 +47,15 @@
   </section>
   <div id="runmap-wrap" class="map-box run-sticky"></div>
   <section>
-    <div class="sec-head"><span class="sec-num">01</span><h2>第一階段 · <span class="dry-only">07:00–08:40</span><span class="rain-only">07:00–08:15</span></h2></div>
-    <p class="sec-note dry-only">內神田起手，往西北畫弧後東南收回，南下日本橋，沿昭和通り直線北上。全程無回頭路。</p>
+    <div class="sec-head"><span class="sec-num">01</span><h2>第一階段 · <span class="dry-only">07:00–07:50</span><span class="rain-only">07:00–08:15</span></h2></div>
+    <p class="sec-note dry-only">06:35 出發沿昭和通り南下 3.5 km。かぶと町 Lawson 起手，八丁堀 → 茅場町 → 兜町 → 蛎殻町・水天宮 → 浜町折返 → 人形町收工。Lawson 6 家，站間合計 4.3 km。</p>
     <p class="sec-note rain-only">06:35 出門，日比谷線 仲御徒町 → 茅場町（4 站）。茅場町兩家 Lawson 起手，南下八丁堀、西到京橋、北上兜町、東北到人形町收工，Lawson 共 6 家、最長一段 400 m。總步行 3.3 km，收工點離 P2 起手店 50 m。</p>
     <ul class="rail" id="rail1"></ul>
-    <div class="phase-meta"><span>14 STOPS</span><span class="dry-only">06:40 出發</span><span class="rain-only">06:35 日比谷線</span><span class="dry-only">90 秒／店</span><span class="rain-only">2 分／店</span></div>
+    <div class="phase-meta"><span class="dry-only">18 STOPS</span><span class="rain-only">14 STOPS</span><span class="dry-only">06:35 出發</span><span class="rain-only">06:35 日比谷線</span><span class="dry-only">90 秒／店</span><span class="rain-only">2 分／店</span></div>
   </section>
   <section>
-    <div class="sec-head"><span class="sec-num">02</span><h2>第二階段 · <span class="dry-only">09:55–10:20</span><span class="rain-only">09:55–10:40</span></h2></div>
-    <p class="sec-note dry-only">全家多數 10:00 才開賣。09:55 就位第一家，沿中央通り・昭和通り一路往南，收完人就在 DX 旁 340m：還車、11:45 前到高島屋 S.C. 東館 5F 等 12:00 整理券。</p>
+    <div class="sec-head"><span class="sec-num">02</span><h2>第二階段 · <span class="dry-only">09:55–10:15</span><span class="rain-only">09:55–10:40</span></h2></div>
+    <p class="sec-note dry-only">全家多數 10:00 才開賣。人形町起手，水天宮前折回茅場町、兜町，6 家收到 DX 門口 60 m：還車、11:45 前到高島屋 S.C. 東館 5F 等 12:00 整理券。</p>
     <p class="sec-note rain-only">全家多數 10:00 才開賣。人形町起手，水天宮前折回茅場町、兜町，一路往西 6 家收到 DX 門口 60 m，總步行 2.1 km，10:37 到高島屋，在裡面躲雨等 12:00 整理券。</p>
     <ul class="rail" id="rail2"></ul>
     <div class="phase-meta"><span>6 STOPS</span><span>中場早餐</span><span>收完進 DX</span></div>
@@ -69,7 +69,7 @@
   </section>
   <section>
     <div class="sec-head"><span class="sec-num">04</span><h2>落後了就照這個順序砍</h2></div>
-    <p class="sec-note dry-only">在第 6 站（鍛冶町）看錶。落後就從上往下棄，別硬跑完。</p>
+    <p class="sec-note dry-only">在第 9 站（兜町東証前）看錶。落後就從上往下棄，別硬跑完。</p>
     <p class="sec-note rain-only">步行版每段都在 6 分鐘內，落後了就跳過沒貨的店往下走。時間有餘、雨不大，照這個順序順路加碼（全在路線 300 m 內）。</p>
     <ol class="triage rain-only">
       <li><b>セブン 茅場町駅前店</b>　第 1、2 站之間，站前</li>
@@ -80,11 +80,11 @@
       <li class="keep"><b>MINISTOP ×3</b>　非優先連鎖，雨天版不列入</li>
     </ol>
     <ol class="triage dry-only">
-      <li><b>ミニストップ 日本橋本石町店</b>　繞路 400m，07:45 後直接跳過</li>
-      <li><b>ミニストップ 神田錦町店</b>　西向弧線最遠點</li>
-      <li><b>セブン 日本橋室町三丁目店</b>　日本橋四連拍裡最可省的</li>
-      <li class="keep"><b>ローソン ×3</b>　配額最高，絕對不砍</li>
-      <li class="keep"><b>ファミマ ×6</b>　一路往南到 DX、全部順路，不砍；有空多收 神田西口店、ヤエチカ店</li>
+      <li><b>セブン 新川１丁目中央店</b>　往東過河的小繞，第 6 站</li>
+      <li><b>セブン 日本橋浜町店</b>　最東端折返點，第 13 站</li>
+      <li><b>セブン 日本橋人形町2丁目店</b>　折返段裡最可省的</li>
+      <li class="keep"><b>ローソン ×6</b>　配額最高，絕對不砍</li>
+      <li class="keep"><b>ファミマ ×6</b>　全部順路收到 DX 門口，不砍；有空多收 茅場町駅東店、日本橋茅場町店</li>
     </ol>
   </section>
 </div>
