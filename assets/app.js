@@ -576,11 +576,13 @@ function render(){
   P3.forEach((d,i)=>r3.appendChild(stopEl(d,'c'+i,R1.length+R2.length+i+1)));
   document.body.classList.toggle('rain',RAIN);
   const rb=document.getElementById('rainbtn');
-  rb.classList.toggle('on',RAIN);
-  rb.addEventListener('click',()=>{
-    try{localStorage.setItem(RAIN_KEY,RAIN?'0':'1');}catch(e){}
-    location.reload();
-  });
+  if(rb){
+    rb.classList.toggle('on',RAIN);
+    rb.addEventListener('click',()=>{
+      try{localStorage.setItem(RAIN_KEY,RAIN?'0':'1');}catch(e){}
+      location.reload();
+    });
+  }
   buildRunMap(document.getElementById('runmap-wrap'));
   document.getElementById('mapkey').addEventListener('click',()=>{
     if(confirm('清除這支手機上存的 Google Maps key？'))clearKey();
