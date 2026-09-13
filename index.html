@@ -30,9 +30,10 @@
 </div>
 <div class="wrap">
   <header class="hero">
-    <div class="eyebrow">9月16日（三）· 07:00 開賣</div>
+    <div class="eyebrow">9月16日（三）· 07:00 開賣<span class="rain-only"> · ☔ 步行版</span></div>
     <h1>上午 25 家超商<br><em>下午 12 家店</em></h1>
     <p class="hero-sub">30th CELEBRATION 全球同步發售。勾掉一站捕獲一隻，超商全部跑完剛好收服 #025 皮卡丘。</p>
+    <button type="button" class="rainbtn" id="rainbtn"><span class="dry-only">☔ 下雨不能騎車？切到雨天備案</span><span class="rain-only">☔ 雨天備案 · 步行版（點我切回單車版）</span></button>
     <div class="cd">
       <div class="cd-u"><span class="cd-n" id="cdD">--</span><span class="cd-l">Days</span></div>
       <div class="cd-u"><span class="cd-n" id="cdH">--</span><span class="cd-l">Hrs</span></div>
@@ -45,16 +46,18 @@
   </section>
   <div id="runmap-wrap" class="map-box run-sticky"></div>
   <section>
-    <div class="sec-head"><span class="sec-num">01</span><h2>第一階段 · 07:00–08:40</h2></div>
-    <p class="sec-note">內神田起手，往西北畫弧後東南收回，南下日本橋，沿昭和通り直線北上。全程無回頭路。</p>
+    <div class="sec-head"><span class="sec-num">01</span><h2>第一階段 · <span class="dry-only">07:00–08:40</span><span class="rain-only">07:00–08:10</span></h2></div>
+    <p class="sec-note dry-only">內神田起手，往西北畫弧後東南收回，南下日本橋，沿昭和通り直線北上。全程無回頭路。</p>
+    <p class="sec-note rain-only">全部 14 家在飯店 400m 內。末広町站起手、中央通り上先收四家 Lawson，往東到昭和通り，沿著往北收御徒町站前，最後回中央通り。總步行 2.9 km。</p>
     <ul class="rail" id="rail1"></ul>
-    <div class="phase-meta"><span>14 STOPS</span><span>06:40 出發</span><span>90 秒／店</span></div>
+    <div class="phase-meta"><span>14 STOPS</span><span class="dry-only">06:40 出發</span><span class="rain-only">06:52 出發</span><span class="dry-only">90 秒／店</span><span class="rain-only">2 分／店</span></div>
   </section>
   <section>
-    <div class="sec-head"><span class="sec-num">02</span><h2>第二階段 · 09:50–11:30</h2></div>
-    <p class="sec-note">全家多數 10:00 才開賣。09:55 就位第一家，之後由西向東單向推進。</p>
+    <div class="sec-head"><span class="sec-num">02</span><h2>第二階段 · <span class="dry-only">09:50–11:30</span><span class="rain-only">09:55–11:00</span></h2></div>
+    <p class="sec-note dry-only">全家多數 10:00 才開賣。09:55 就位第一家，之後由西向東單向推進。</p>
+    <p class="sec-note rain-only">全家多數 10:00 才開賣。湯島起手，沿春日通り往東到 JR 東側，南下御徒町、中央通り一路走到電気街口收尾。總步行 3.0 km，結束就在秋葉原站旁。</p>
     <ul class="rail" id="rail2"></ul>
-    <div class="phase-meta"><span>11 STOPS</span><span>中場早餐</span><span>滑 X 看戰況</span></div>
+    <div class="phase-meta"><span>11 STOPS</span><span class="dry-only">中場早餐</span><span class="rain-only">中場回飯店擦乾</span><span>滑 X 看戰況</span></div>
   </section>
   <section>
     <div class="sec-head"><span class="sec-num">03</span><h2>下午 → 晚上 · 13:00–20:00</h2></div>
@@ -65,8 +68,16 @@
   </section>
   <section>
     <div class="sec-head"><span class="sec-num">04</span><h2>落後了就照這個順序砍</h2></div>
-    <p class="sec-note">在第 6 站（鍛冶町）看錶。落後就從上往下棄，別硬跑完。</p>
-    <ol class="triage">
+    <p class="sec-note dry-only">在第 6 站（鍛冶町）看錶。落後就從上往下棄，別硬跑完。</p>
+    <p class="sec-note rain-only">全程都在飯店 400m 內，落後了不用砍，沒貨就走下一家。真的要砍照這個順序；還有力氣就順路加碼。</p>
+    <ol class="triage rain-only">
+      <li><b>セブン 上野２丁目中央通り店</b>　最後一站，收工前多繞 250m</li>
+      <li><b>セブン 台東２丁目店</b>　昭和通り東側的小繞</li>
+      <li><b>NewDays 御徒町 ×2</b>　限購 5 包的通勤店</li>
+      <li class="keep"><b>ローソン ×7</b>　配額最高，絕對不砍</li>
+      <li class="keep"><b>加碼（都在飯店 450–550m）</b>　ローソン JEBL秋葉原スクエア店、セブン 台東上野６丁目店、セブン 台東４丁目店、ローソン 池之端一丁目店、ローソン 秋葉原北口店、ローソン 外神田三丁目店；西側還有 セブン 文京湯島３丁目店、外神田２丁目妻恋坂店。全家加碼：秋葉原富士ソフトビル店（07:00 開）</li>
+    </ol>
+    <ol class="triage dry-only">
       <li><b>ミニストップ 日本橋本石町店</b>　繞路 400m，07:45 後直接跳過</li>
       <li><b>ミニストップ 神田錦町店</b>　西向弧線最遠點</li>
       <li><b>セブン 日本橋室町三丁目店</b>　日本橋四連拍裡最可省的</li>

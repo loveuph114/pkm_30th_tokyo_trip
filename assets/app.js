@@ -1,4 +1,9 @@
-const ALL=[...P1.map((d,i)=>[d,'a'+i]),...P2.map((d,i)=>[d,'b'+i]),...P3.map((d,i)=>[d,'c'+i])];
+// 雨天備案：localStorage tokyo2026:rain 為 '1' 時，上午兩段換成 RAIN_P1／RAIN_P2（步行版），P3 不變。
+// 勾選 id 加 'r' 前綴（'ra0'、'rb0'），與一般版的 'a'/'b' 分開存；P3 的 'c' 兩版共用。切換鈕改 flag 後整頁重載。
+const RAIN_KEY='tokyo2026:rain';
+const RAIN=(()=>{try{return localStorage.getItem(RAIN_KEY)==='1';}catch(e){return false;}})();
+const R1=RAIN?RAIN_P1:P1,R2=RAIN?RAIN_P2:P2,PX=RAIN?'r':'';
+const ALL=[...R1.map((d,i)=>[d,PX+'a'+i]),...R2.map((d,i)=>[d,PX+'b'+i]),...P3.map((d,i)=>[d,'c'+i])];
 const SPRITE=n=>'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+n+'.png';
 let done=new Set();
 const KEY='tokyo2026:done';
@@ -345,7 +350,7 @@ function pinState(id){
 }
 // 路跑 37 站 → 圖釘資料。half：'am'（飯店＋P1＋P2）或 'pm'（P3）
 function runPts(half){
-  const cut=P1.length+P2.length;
+  const cut=R1.length+R2.length;
   const pts=ALL.map(([d,id],i)=>{
     const c=COORDS[d[4]];
     if(!c||(half==='pm')!==(i>=cut))return null;
@@ -373,7 +378,7 @@ function buildRunMap(wrap){
   wrap.innerHTML='<div class="gmap"></div>';
   const el=wrap.querySelector('.gmap');runMaps.push(el);
   const chips=document.createElement('div');chips.className='chips';
-  chips.innerHTML='<button type="button" class="chip on" data-half="am">上午 '+(P1.length+P2.length)+' 站</button>'+
+  chips.innerHTML='<button type="button" class="chip on" data-half="am">上午 '+(R1.length+R2.length)+' 站</button>'+
     '<button type="button" class="chip" data-half="pm">下午 '+P3.length+' 站</button>';
   el._lead=chips;
   let half='am';
@@ -566,9 +571,16 @@ function mealDlg(title,s,k){
 function render(){
   const r1=document.getElementById('rail1'),r2=document.getElementById('rail2'),r3=document.getElementById('rail3');
   r1.innerHTML='';r2.innerHTML='';r3.innerHTML='';
-  P1.forEach((d,i)=>r1.appendChild(stopEl(d,'a'+i,i+1)));
-  P2.forEach((d,i)=>r2.appendChild(stopEl(d,'b'+i,P1.length+i+1)));
-  P3.forEach((d,i)=>r3.appendChild(stopEl(d,'c'+i,P1.length+P2.length+i+1)));
+  R1.forEach((d,i)=>r1.appendChild(stopEl(d,PX+'a'+i,i+1)));
+  R2.forEach((d,i)=>r2.appendChild(stopEl(d,PX+'b'+i,R1.length+i+1)));
+  P3.forEach((d,i)=>r3.appendChild(stopEl(d,'c'+i,R1.length+R2.length+i+1)));
+  document.body.classList.toggle('rain',RAIN);
+  const rb=document.getElementById('rainbtn');
+  rb.classList.toggle('on',RAIN);
+  rb.addEventListener('click',()=>{
+    try{localStorage.setItem(RAIN_KEY,RAIN?'0':'1');}catch(e){}
+    location.reload();
+  });
   buildRunMap(document.getElementById('runmap-wrap'));
   document.getElementById('mapkey').addEventListener('click',()=>{
     if(confirm('清除這支手機上存的 Google Maps key？'))clearKey();

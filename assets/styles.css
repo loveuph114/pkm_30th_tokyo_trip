@@ -52,6 +52,12 @@ body{
 .hero h1{font-family:var(--round);font-weight:800;font-size:clamp(1.85rem,8vw,2.6rem);line-height:1.2;letter-spacing:-.02em;margin:0 0 .4rem}
 .hero h1 em{font-style:normal;color:var(--red)}
 .hero-sub{color:var(--mid);font-size:.88rem;margin:0 0 1.7rem}
+.rainbtn{display:inline-flex;align-items:center;margin:-.7rem 0 1.6rem;padding:.45rem .9rem;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--mid);font-family:var(--round);font-weight:700;font-size:.78rem;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.rainbtn.on{background:var(--indigo);border-color:var(--indigo);color:#fff}
+/* 雨天備案：body.rain 時顯示 .rain-only、藏 .dry-only */
+.rain-only{display:none}
+body.rain .rain-only{display:revert}
+body.rain .dry-only{display:none}
 .cd{display:flex;gap:.45rem;align-items:flex-end}
 .cd-u{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.5rem .65rem;min-width:3.9rem;text-align:center}
 .cd-n{font-family:var(--dot);font-size:1.6rem;line-height:1.15;display:block;color:var(--indigo)}
