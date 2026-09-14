@@ -1,6 +1,10 @@
 # 把 Tabelog 抓下來的原始清單整理成 data/meals.js 的 MEALS 常數
 # 輸入：notes/tabelog_dump2_part*.txt（列表，含縮圖）、notes/tabelog_coords.txt（店ID|lat,lng）
 # 抓取日：2026-09-08/09。執行：python notes/gen_meals.py
+# part4（nikko_yuba）是 2026-09-14 手整理的 9/17 東照宮周邊湯波料理：Tabelog 被 Cloudflare 擋、Chrome 擴充又沒連上，
+# 分數／類型／預算抄自 Google 搜尋結果的食べログ摘要、座標抄 Google 地圖、沒有縮圖；距離欄由下面 YUBA_DIST 依座標算到東照宮。
+# 只收 9/17（四）有營業的店：さんフィールド 3.49・尭心亭 3.42・ゆば亭ますだや 3.24・もみぢ庵 3.09 皆週四定休，
+# 高井家 3.1 午餐 ¥6,000–7,999 超預算且完全預約制，魚要 已閉店。
 import re, json, io, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -30,9 +34,21 @@ COORDS = {}
 cf = ROOT / 'notes' / 'tabelog_coords.txt'
 if cf.exists():
     for line in cf.read_text(encoding='utf-8').splitlines():
-        if '|' in line:
+        if '|' in line and not line.startswith('#'):
             i, ll = line.split('|', 1)
             if ll.strip(): COORDS[i.strip()] = ll.strip()
+
+# nikko_yuba 的距離欄：以座標算到東照宮（ROUTES 的 日光東照宮 點位）的直線距離，公尺
+import math
+TOSHOGU = (36.7580878, 139.5987466)
+def _hav(a, b):
+    R = 6371000; la1, lo1 = map(math.radians, a); la2, lo2 = map(math.radians, b)
+    h = math.sin((la2-la1)/2)**2 + math.cos(la1)*math.cos(la2)*math.sin((lo2-lo1)/2)**2
+    return 2*R*math.asin(math.sqrt(h))
+for r in RAW.get('nikko_yuba', []):
+    if r[2] == '?' and r[4] in COORDS:
+        lat, lng = map(float, COORDS[r[4]].split(','))
+        r[2] = str(int(round(_hav(TOSHOGU, (lat, lng)), -1)))
 
 # 純甜點／咖啡／麵包／酒吧／住宿／賣店：每個類型都落在這集合的店，不算正餐，剔除
 EXCL = set('''カフェ 喫茶店 甘味処 かき氷 和菓子 ケーキ パン スイーツ チョコレート 洋菓子 プリン パンケーキ
@@ -82,19 +98,20 @@ def rows(key, mode, station, pref, cap, min_score=3.5, reject=(), top=None):
         out.append((rid, [name, zh(genre), r[1], where, budget if budget != '-' else '預算不明', url, COORDS.get(rid, ''), imgs]))
     return out
 
-def merge(*lists):
+def merge(*lists, by_group=False):
+    """by_group=True：先依傳入的清單順序分組，組內再依評分排（例：湯波店整組排在一般店前面）"""
     seen, out = set(), []
-    for lst in lists:
+    for gi, lst in enumerate(lists):
         for rid, row in lst:
             if rid in seen: continue
-            seen.add(rid); out.append(row)
-    out.sort(key=lambda x: -float(x[2]))
-    return out
+            seen.add(rid); out.append((gi if by_group else 0, row))
+    out.sort(key=lambda x: (x[0], -float(x[1][2])))
+    return [row for _, row in out]
 
 L, D = 'lunch', 'dinner'
 MEALS = {}
-def slot(date, kind, note, *lists):
-    MEALS.setdefault(date, {})[kind] = {'note': note, 'list': merge(*lists)}
+def slot(date, kind, note, *lists, by_group=False):
+    MEALS.setdefault(date, {})[kind] = {'note': note, 'list': merge(*lists, by_group=by_group)}
 
 slot('9/15', L, '末広町駅 500m · 昼～¥3,000 · 3.5+ · 週二定休未逐店確認，選定前用 Google 確認營業中',
      rows('suehirocho_lunch', L, '末広町駅', 'tokyo', 3000, reject=REJECT_0915))
@@ -102,8 +119,9 @@ slot('9/15', D, '日本橋駅／秋葉原駅 500m · 夜～¥6,000 · 3.5+',
      rows('nihonbashi_dinner', D, '日本橋駅', 'tokyo', 6000), rows('akiba_dinner', D, '秋葉原駅', 'tokyo', 6000))
 slot('9/16', L, '秋葉原駅 500m · 昼～¥3,000 · 3.5+', rows('akiba_lunch', L, '秋葉原駅', 'tokyo', 3000))
 slot('9/16', D, '秋葉原駅 500m · 夜～¥6,000 · 3.5+ · 20:30 才吃，先看打烊時間', rows('akiba_dinner', D, '秋葉原駅', 'tokyo', 6000))
-slot('9/17', L, '日光全區（東照宮周邊到東武日光駅）· 昼～¥5,000 · 3.5+ · 湯波料理店多在 3.5 以下，名單裡是全區高分店',
-     rows('nikko_lunch', L, '日光市街', 'tochigi', 5000))
+slot('9/17', L, '前 6 家＝東照宮周邊湯波料理（表參道口～神橋，距離為到東照宮），只列 9/17（四）有營業的店；後面是全區非湯波高分備選 · 昼～¥5,000 · '
+     '湯波店分數／座標 9/14 抄自 Google，無縮圖 · さんフィールド 3.49 週四定休（旺季偶開到 14:00，要去先電 0288-53-4758）',
+     rows('nikko_yuba', L, '東照宮', 'tochigi', 5000, min_score=3.0), rows('nikko_lunch', L, '日光市街', 'tochigi', 5000), by_group=True)
 slot('9/17', D, '中禅寺湖周辺 · 山區店少、評價人數少，放寬到 3.0 以上 · 夜～¥6,000 · 18:30 前入店',
      rows('chuzenji_all', D, '中禅寺温泉', 'tochigi', 6000, min_score=3.0))
 slot('9/18', L, '中禅寺湖周辺 · 放寬到 3.0 以上（同 9/17 晚餐）· 昼～¥3,000',
